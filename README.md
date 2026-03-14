@@ -94,30 +94,35 @@ Tododeia is a **Claude Code skill** — a reusable prompt-and-tooling package th
 
 ## Installation
 
-### Step 1: Clone the skill
+### Option A: One-liner (fastest)
 
 ```bash
+curl -sL https://raw.githubusercontent.com/Hainrixz/maia-skill/main/install.sh | bash
+```
+
+This clones the repo, symlinks the skill into Claude Code, and installs dashboard dependencies automatically.
+
+### Option B: Claude Code plugin
+
+```bash
+claude plugin install Hainrixz/maia-skill
+```
+
+### Option C: Manual setup
+
+```bash
+# 1. Clone the repo
 git clone https://github.com/Hainrixz/maia-skill.git
-```
 
-### Step 2: Install the skill in Claude Code
-
-From within the cloned repo, the skill is located at `.claude/skills/investment-analysis/`. Claude Code automatically detects skills in this directory structure when you work inside the project.
-
-To use this skill from **any directory**, copy or symlink the skill folder into your global Claude Code skills:
-
-```bash
+# 2. Symlink skill into Claude Code
 mkdir -p ~/.claude/skills
-ln -s "$(pwd)/.claude/skills/investment-analysis" ~/.claude/skills/investment-analysis
+ln -s "$(pwd)/maia-skill/.claude/skills/investment-analysis" ~/.claude/skills/investment-analysis
+
+# 3. Install dashboard dependencies
+npm install --prefix maia-skill/dashboard
 ```
 
-### Step 3: Install dashboard dependencies
-
-```bash
-npm install --prefix dashboard
-```
-
-That's it. The skill auto-activates when you mention investment-related topics in Claude Code.
+The skill auto-activates when you mention investment-related topics in Claude Code.
 
 ## Usage
 
@@ -301,30 +306,35 @@ Tododeia es un **skill de Claude Code** — un paquete reutilizable de prompts y
 
 ## Instalacion
 
-### Paso 1: Clonar el skill
+### Opcion A: Una sola linea (la mas rapida)
 
 ```bash
+curl -sL https://raw.githubusercontent.com/Hainrixz/maia-skill/main/install.sh | bash
+```
+
+Esto clona el repo, enlaza el skill a Claude Code e instala las dependencias del dashboard automaticamente.
+
+### Opcion B: Plugin de Claude Code
+
+```bash
+claude plugin install Hainrixz/maia-skill
+```
+
+### Opcion C: Configuracion manual
+
+```bash
+# 1. Clonar el repo
 git clone https://github.com/Hainrixz/maia-skill.git
-```
 
-### Paso 2: Instalar el skill en Claude Code
-
-Dentro del repo clonado, el skill esta en `.claude/skills/investment-analysis/`. Claude Code detecta automaticamente los skills en esta estructura cuando trabajas dentro del proyecto.
-
-Para usar este skill desde **cualquier directorio**, copia o crea un enlace simbolico en tus skills globales de Claude Code:
-
-```bash
+# 2. Enlazar el skill en Claude Code
 mkdir -p ~/.claude/skills
-ln -s "$(pwd)/.claude/skills/investment-analysis" ~/.claude/skills/investment-analysis
+ln -s "$(pwd)/maia-skill/.claude/skills/investment-analysis" ~/.claude/skills/investment-analysis
+
+# 3. Instalar dependencias del dashboard
+npm install --prefix maia-skill/dashboard
 ```
 
-### Paso 3: Instalar dependencias del dashboard
-
-```bash
-npm install --prefix dashboard
-```
-
-Listo. El skill se activa automaticamente cuando mencionas temas de inversion en Claude Code.
+El skill se activa automaticamente cuando mencionas temas de inversion en Claude Code.
 
 ## Uso
 
