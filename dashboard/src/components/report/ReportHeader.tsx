@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useLanguage } from "@/hooks/use-language"
 import type { ReportData } from "@/types/report"
 
 const profileStyles: Record<string, string> = {
@@ -10,6 +11,7 @@ const profileStyles: Record<string, string> = {
 }
 
 export function ReportHeader({ data }: { data: ReportData }) {
+  const { t } = useLanguage()
   const date = new Date(data.generated_at).toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
@@ -30,18 +32,16 @@ export function ReportHeader({ data }: { data: ReportData }) {
             tododeia.
           </h1>
           <p className="mt-1 text-sm text-[#8B8B85]">
-            Investment Analysis by {data.creator}
+            {t("header.subtitle")} {data.creator}
           </p>
         </div>
         <div className="text-left sm:text-right">
           <p className="text-sm text-[#8B8B85]">
             <strong className="block text-base font-semibold text-[#37352F]">{date}</strong>
-            Investment Analysis Report
+            {t("header.report")}
           </p>
-          <span
-            className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wider ${profileStyles[data.risk_profile]}`}
-          >
-            {data.risk_profile} profile
+          <span className={`mt-2 inline-block rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wider ${profileStyles[data.risk_profile]}`}>
+            {data.risk_profile} {t("header.profile")}
           </span>
         </div>
       </div>

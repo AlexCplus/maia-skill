@@ -2,6 +2,8 @@
 
 import { useState, useCallback } from "react"
 import { useReportData } from "@/hooks/use-report-data"
+import { LanguageProvider } from "@/hooks/use-language"
+import { LanguagePicker } from "@/components/report/LanguagePicker"
 import { ReportHeader } from "@/components/report/ReportHeader"
 import { Toolbar } from "@/components/report/Toolbar"
 import { ExecutiveSummary } from "@/components/report/ExecutiveSummary"
@@ -18,7 +20,7 @@ import { Disclaimer } from "@/components/report/Disclaimer"
 import { Footer } from "@/components/report/Footer"
 import { LoadingSkeleton } from "@/components/report/LoadingSkeleton"
 
-export default function ReportPage() {
+function ReportContent() {
   const { data, loading, error } = useReportData()
   const [filter, setFilter] = useState("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -49,7 +51,7 @@ export default function ReportPage() {
             tododeia.
           </h1>
           <p className="mt-3 text-sm text-[#8B8B85]">
-            {error ?? "No report data found. Run the investment analysis skill to generate a report."}
+            {error ?? "No report data found."}
           </p>
         </div>
       </div>
@@ -62,6 +64,7 @@ export default function ReportPage() {
         className="absolute inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:32px_32px]"
         aria-hidden="true"
       />
+      <LanguagePicker />
       <main id="main-content" className="mx-auto max-w-5xl px-4 pb-12 sm:px-6 lg:px-10">
         <ReportHeader data={data} />
         <Toolbar
@@ -69,48 +72,46 @@ export default function ReportPage() {
           onFilterChange={setFilter}
           onSearchChange={setSearchQuery}
         />
-
         <div className="space-y-8">
           <ExecutiveSummary summary={data.executive_summary} />
-
           <div className="grid gap-4 md:grid-cols-2">
             <MacroEnvironment macro={data.macro_environment} />
             <PortfolioAllocation allocation={data.portfolio_allocation} />
           </div>
-
           <CrossSectorInsights insights={data.cross_sector_insights} />
           <Warnings warnings={data.warnings} />
-
           <TopPicksGrid
             picks={data.risk_adjusted_picks}
             sectors={data.sectors}
             filter={filter}
             searchQuery={searchQuery}
           />
-
           <SectorOverview
             sectors={data.sectors}
             onSectorClick={handleSectorClick}
           />
-
           <DetailedAnalysis
             sectors={data.sectors}
             openSectors={openSectors}
           />
-
           <HistoricalAccuracy accuracy={data.historical_accuracy} />
-
           <ChartsSection
             sectors={data.sectors}
             picks={data.risk_adjusted_picks}
             allocation={data.portfolio_allocation}
           />
-
           <Disclaimer />
         </div>
-
         <Footer generatedAt={data.generated_at} />
       </main>
     </div>
+  )
+}
+
+export default function ReportPage() {
+  return (
+    <LanguageProvider>
+      <ReportContent />
+    </LanguageProvider>
   )
 }
