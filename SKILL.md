@@ -185,6 +185,13 @@ Combine all agent outputs into the final REPORT_DATA object:
 
 ### Step 8: Generate the Report
 
+**Primary (Next.js dashboard):**
+1. Check if `dashboard/package.json` exists in the project directory. If yes, use the Next.js dashboard.
+2. Create `dashboard/public/data/` directory if it doesn't exist.
+3. Write the REPORT_DATA JSON to `dashboard/public/data/report.json`.
+
+**Fallback (legacy HTML template):**
+If `dashboard/package.json` does not exist (Node.js not set up):
 1. Find and read `assets/template.html` from this skill's directory (use Glob to locate it).
 2. Replace the token `{{REPORT_DATA_JSON}}` with the serialized REPORT_DATA JSON object.
 3. Create the `output/` directory if it doesn't exist.
@@ -192,17 +199,27 @@ Combine all agent outputs into the final REPORT_DATA object:
 
 ### Step 9: Serve the Report
 
-1. Check if port 8420 is available: `lsof -i :8420`
-2. If busy, try ports 8421-8425.
-3. Start the server in background: `python3 -m http.server PORT --directory output`
-4. Tell the user:
+**Primary (Next.js dashboard):**
+1. Check if `dashboard/node_modules/` exists. If not, run `npm install --prefix dashboard`.
+2. Check if port 3420 is available: `lsof -i :3420`
+3. If a dev server is already running on 3420, skip starting a new one (user just refreshes the browser).
+4. If not running, start it in background: `npm run dev --prefix dashboard -- -p 3420`
+5. Wait 3 seconds for the server to start.
+6. Tell the user:
 
 > **Tododeia Investment Report is ready!**
-> Open: http://localhost:PORT/report.html
+> Open: http://localhost:3420
 >
 > **Profile**: {risk_profile} | **Top Pick**: {#1 risk-adjusted pick} | **Portfolio**: {allocation summary}
 >
 > The report includes cross-sector strategy analysis, social sentiment, historical accuracy tracking, and interactive charts.
+
+**Fallback (legacy):**
+If Node.js/npm is not available:
+1. Check if port 8420 is available: `lsof -i :8420`
+2. If busy, try ports 8421-8425.
+3. Start the server in background: `python3 -m http.server PORT --directory output`
+4. Tell the user to open: http://localhost:PORT/report.html
 
 ### Step 10: Offer Scheduling
 
