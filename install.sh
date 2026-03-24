@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Tododeia / MAIA Skill — Installer
-# Usage: curl -sL https://raw.githubusercontent.com/Hainrixz/maia-skill/main/install.sh | bash
+# Usage: curl -sL https://raw.githubusercontent.com/AlexCplus/maia-skill/main/install.sh | bash
 
 set -e
 
-REPO="https://github.com/Hainrixz/maia-skill.git"
+REPO="https://github.com/AlexCplus/maia-skill.git"
 SKILL_NAME="investment-analysis"
 INSTALL_DIR="$HOME/.claude/skills/$SKILL_NAME"
 
