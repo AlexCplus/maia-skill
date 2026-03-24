@@ -36,7 +36,7 @@ Store the selected profile as the `risk_profile` variable ("conservative", "mode
 
 ### Step 2: Load Agent Prompts
 
-Read the file `references/agent-prompts.md` relative to this skill's directory. Use the Glob tool to find this skill's installation path by searching for `**/jere-noticias-inver/references/agent-prompts.md` or `**/investment-analysis/references/agent-prompts.md`.
+Read the file `references/agent-prompts.md` relative to this skill's directory. Use the Glob tool to find this skill's installation path by searching for `**/maia-skill/references/agent-prompts.md` or `**/investment-analysis/references/agent-prompts.md`.
 
 ### Step 3: Load Historical Data
 
