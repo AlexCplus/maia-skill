@@ -1,0 +1,6 @@
+broker:
+  mode: live
+  name: live-broker
+  endpoint: https://live-broker.local/api
+  account_id: LIVE_ACCOUNT
+  note: Add credentials via environment variables only.

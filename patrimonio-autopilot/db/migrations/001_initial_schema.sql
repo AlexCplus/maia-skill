@@ -1,0 +1,70 @@
+CREATE TABLE IF NOT EXISTS accounts (
+    id TEXT PRIMARY KEY,
+    broker TEXT NOT NULL,
+    account_ref TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS positions (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    side TEXT NOT NULL,
+    quantity NUMERIC NOT NULL,
+    avg_price NUMERIC NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    opened_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    closed_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    side TEXT NOT NULL,
+    order_type TEXT NOT NULL,
+    quantity NUMERIC NOT NULL,
+    price NUMERIC,
+    status TEXT NOT NULL DEFAULT 'pending',
+    submitted_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+CREATE TABLE IF NOT EXISTS fills (
+    id TEXT PRIMARY KEY,
+    order_id TEXT NOT NULL,
+    fill_price NUMERIC NOT NULL,
+    fill_quantity NUMERIC NOT NULL,
+    fee NUMERIC NOT NULL DEFAULT 0,
+    filled_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE IF NOT EXISTS audit_events (
+    id TEXT PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    actor TEXT NOT NULL,
+    correlation_id TEXT,
+    payload TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS incidents (
+    id TEXT PRIMARY KEY,
+    severity TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    summary TEXT NOT NULL,
+    details TEXT,
+    detected_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

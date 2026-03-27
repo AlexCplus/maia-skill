@@ -1,0 +1,9 @@
+app:
+  name: patrimonio-autopilot
+  environment: development
+  timezone: UTC
+logging:
+  level: INFO
+  format: json
+database:
+  url: ${DB_URL}

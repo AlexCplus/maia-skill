@@ -1,0 +1,5 @@
+risk:
+  max_daily_loss: 1000
+  max_open_positions: 10
+  max_order_notional: 50000
+  kill_switch_enabled: true

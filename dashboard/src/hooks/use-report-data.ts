@@ -13,7 +13,7 @@ export function useReportData(lang: Language = "en") {
     setLoading(true)
     setError(null)
 
-    const file = lang === "es" ? "/data/report-es.json" : "/data/report.json"
+    const file = lang === "es" ? "/data/report-es_v2.json" : "/data/report_v2.json"
 
     fetch(file)
       .then((res) => {

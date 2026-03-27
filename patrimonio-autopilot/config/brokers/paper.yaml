@@ -1,0 +1,5 @@
+broker:
+  mode: paper
+  name: paper-broker
+  endpoint: https://paper-broker.local/api
+  account_id: PAPER_ACCOUNT

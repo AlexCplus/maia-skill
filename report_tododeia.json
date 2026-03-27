@@ -1,0 +1,389 @@
+{
+  "brand": "Tododeia",
+  "creator": "@soyenriquerocha",
+  "generated_at": "2026-03-25T15:00:00Z",
+  "risk_profile": "aggressive",
+  "executive_summary": "On March 25, 2026, the market presents a high-octane environment defined by the 'AI Infrastructure' build-out and a resurgent US Dollar. We are witnessing a decoupling where Bitcoin rallies alongside the Dollar, suggesting a broad flight to quality assets. The strategy favors aggressive positioning in AI-industrial hybrids (Vertiv, Coherent), high-conviction crypto catalysts (Bitcoin options, Solana volume), and structural commodity deficits (Copper). Short-term volatility in Forex offers speculative upside in USD/MXN.",
+  "macro_environment": {
+    "trend": "Bullish Volatility",
+    "key_drivers": [
+      "AI Infrastructure Spending (Data Centers/Power)",
+      "US Dollar Strength (DXY > 100)",
+      "Crypto Institutional Flows",
+      "Electrification Supply Deficits"
+    ],
+    "inflation_outlook": "Persistent pressures in commodities (Food/Gold)",
+    "global_sentiment": "Risk-On for Tech/Crypto, Risk-Off for EM Currencies"
+  },
+  "portfolio_allocation": {
+    "crypto": 40,
+    "stocks": 35,
+    "materials": 15,
+    "currencies": 10,
+    "rationale": "Overweight Crypto and Tech Stocks to capture high-beta upside from current catalysts. Materials provide essential structural exposure to the tech boom. Currencies serve as a tactical hedge and volatility play."
+  },
+  "cross_sector_insights": [
+    "**The AI-Materials Nexus**: The surge in AI hardware stocks (Vertiv, Coherent) is directly fueling the 'supercycle' thesis for Copper and Lithium. Long both sectors for compounded exposure.",
+    "**The Safe-Haven Divergence**: Bitcoin and Gold are rallying simultaneously with the US Dollar, breaking traditional inverse correlations. This indicates a unique 'everything hard' rally against fiat instability outside the USD.",
+    "**Tech vs. Rates**: Despite the strong Dollar (usually bad for tech), the NASDAQ ignores the DXY due to overwhelming earnings growth from AI implementation."
+  ],
+  "risk_adjusted_picks": [
+    {
+      "asset": "Bitcoin (BTC)",
+      "sector": "crypto",
+      "action": "buy",
+      "weight": "High",
+      "reasoning": "Immediate $75k target driven by options expiry and institutional inflows. Breakout imminent."
+    },
+    {
+      "asset": "Vertiv Holdings (VRT)",
+      "sector": "stocks",
+      "action": "strong_buy",
+      "weight": "High",
+      "reasoning": "The 'Index Inclusion Effect' combined with AI power demands makes this the premier industrial-tech play of Q1 2026."
+    },
+    {
+      "asset": "Copper (HG)",
+      "sector": "materials",
+      "action": "buy",
+      "weight": "Medium",
+      "reasoning": "Critical infrastructure play. You cannot build the data centers for VRT/LITE without the copper."
+    },
+    {
+      "asset": "USD/MXN",
+      "sector": "currencies",
+      "action": "buy",
+      "weight": "Low",
+      "reasoning": "Tactical trade on volatility. As DXY breaks 100, emerging market carry trades are unwinding rapidly."
+    },
+    {
+      "asset": "Solana (SOL)",
+      "sector": "crypto",
+      "action": "buy",
+      "weight": "Medium",
+      "reasoning": "High-beta crypto play. Outperforming ETH on volume and user activity metrics."
+    }
+  ],
+  "historical_accuracy": null,
+  "warnings": [
+    "**DXY Resistance**: If the Dollar Index fails at 102, expect a sharp reversal in USD/MXN.",
+    "**Regulatory Risk**: Keep tight stops on Crypto assets; while news is good, volatility remains extreme.",
+    "**Overheating**: AI stocks are at high valuations; monitor for any earnings misses in the semiconductor sector."
+  ],
+  "sectors": {
+    "crypto": {
+      "sector": "crypto",
+      "timestamp": "2026-03-25T14:30:00Z",
+      "assets": [
+        {
+          "name": "Bitcoin",
+          "symbol": "BTC",
+          "current_price": "$71,336.00",
+          "change_24h": "+0.84%",
+          "change_7d": "+0.09%",
+          "change_30d": "+12.5%",
+          "ytd_change": "+45.2%",
+          "week_52_high": "$73,800.00",
+          "week_52_low": "$38,500.00",
+          "market_cap": "$1.43T",
+          "volume_24h": "$36.36B",
+          "sentiment": "bullish",
+          "social_sentiment": "bullish",
+          "social_buzz": "high",
+          "confidence": 8,
+          "source_agreement": "high",
+          "sources_checked": ["coinmarketcap.com", "coingecko.com"],
+          "key_news": ["14B options expiry could push BTC to 75K", "CFTC launches innovation task force for crypto"],
+          "social_highlights": ["Traders eyeing $75k breakout on options expiry", "Institutional inflows remaining strong"],
+          "recommendation": "buy",
+          "reasoning": "Bitcoin is showing strength near all-time highs with a major options expiry catalyst potentially driving price to $75k. Institutional support remains robust."
+        },
+        {
+          "name": "Ethereum",
+          "symbol": "ETH",
+          "current_price": "$2,172.42",
+          "change_24h": "+0.64%",
+          "change_7d": "+1.15%",
+          "change_30d": "-2.4%",
+          "ytd_change": "+15.8%",
+          "week_52_high": "$2,800.00",
+          "week_52_low": "$1,550.00",
+          "market_cap": "$262.16B",
+          "volume_24h": "$17.21B",
+          "sentiment": "neutral",
+          "social_sentiment": "mixed",
+          "social_buzz": "medium",
+          "confidence": 6,
+          "source_agreement": "high",
+          "sources_checked": ["coinmarketcap.com", "coingecko.com"],
+          "key_news": ["Ethereum foundation selling pressure concerns", "Layer 2 adoption metrics hit record highs"],
+          "social_highlights": ["Debate over ETH underperformance vs BTC", "DeFi TVL growing on L2s"],
+          "recommendation": "hold",
+          "reasoning": "Ethereum is lagging behind Bitcoin's momentum. While fundamentals (L2 growth) are strong, price action is currently consolidating. Wait for a breakout above $2,300."
+        },
+        {
+          "name": "XRP",
+          "symbol": "XRP",
+          "current_price": "$1.41",
+          "change_24h": "+0.25%",
+          "change_7d": "+3.00%",
+          "change_30d": "+18.2%",
+          "ytd_change": "+85.5%",
+          "week_52_high": "$1.50",
+          "week_52_low": "$0.48",
+          "market_cap": "$86.86B",
+          "volume_24h": "$1.94B",
+          "sentiment": "bullish",
+          "social_sentiment": "bullish",
+          "social_buzz": "high",
+          "confidence": 7,
+          "source_agreement": "medium",
+          "sources_checked": ["coinmarketcap.com", "coindesk.com"],
+          "key_news": ["Ripple legal clarity driving institutional interest", "New cross-border payment partnerships announced"],
+          "social_highlights": ["XRP army targeting $2.00 next", "Speculation on ETF filing"],
+          "recommendation": "buy",
+          "reasoning": "XRP is showing strong relative strength with a +3% weekly gain, outperforming the broader market. Technical setup points to a continuation toward $1.50."
+        },
+        {
+          "name": "Solana",
+          "symbol": "SOL",
+          "current_price": "$91.60",
+          "change_24h": "+1.04%",
+          "change_7d": "+2.03%",
+          "change_30d": "+8.5%",
+          "ytd_change": "+110.2%",
+          "week_52_high": "$126.00",
+          "week_52_low": "$18.00",
+          "market_cap": "$52.42B",
+          "volume_24h": "$3.80B",
+          "sentiment": "bullish",
+          "social_sentiment": "bullish",
+          "social_buzz": "high",
+          "confidence": 7,
+          "source_agreement": "high",
+          "sources_checked": ["coinmarketcap.com", "coingecko.com"],
+          "key_news": ["Solana mobile phone sellout", "Network uptime stability improved"],
+          "social_highlights": ["Memecoin volume on Solana flipping Ethereum", "Developers flocking to ecosystem"],
+          "recommendation": "buy",
+          "reasoning": "Solana continues to capture market share with high volume and user activity. Price is recovering well and showing bullish momentum."
+        },
+        {
+          "name": "TRON",
+          "symbol": "TRX",
+          "current_price": "$0.3159",
+          "change_24h": "+2.98%",
+          "change_7d": "+3.80%",
+          "change_30d": "+15.4%",
+          "ytd_change": "+42.1%",
+          "week_52_high": "$0.35",
+          "week_52_low": "$0.10",
+          "market_cap": "$29.94B",
+          "volume_24h": "$501.77M",
+          "sentiment": "bullish",
+          "social_sentiment": "mixed",
+          "social_buzz": "medium",
+          "confidence": 6,
+          "source_agreement": "high",
+          "sources_checked": ["coinmarketcap.com", "coingecko.com"],
+          "key_news": ["USDT on Tron hits new milestone", "Deflationary burn mechanism accelerating"],
+          "social_highlights": ["Justin Sun announces new protocol upgrade", "Stablecoin usage dominance discussion"],
+          "recommendation": "buy",
+          "reasoning": "TRX is the top gainer among major alts today (+2.98%). Its utility as the primary chain for USDT transfers provides a fundamental floor."
+        }
+      ],
+      "sector_summary": "The crypto market is showing renewed strength led by Bitcoin pushing towards $75k ahead of a major options expiry. Altcoins like XRP and TRX are outperforming, while Ethereum lags slightly. Institutional interest remains the primary driver.",
+      "sector_outlook": "bullish",
+      "top_pick": "BTC",
+      "top_pick_reasoning": "Bitcoin has the clearest catalyst (options expiry) and strongest institutional flows. Breaking $71k resistance opens the path to $75k in the short term."
+    },
+    "stocks": {
+      "sector": "stocks",
+      "timestamp": "2026-03-25T09:30:00Z",
+      "assets": [
+        {
+          "name": "S&P 500",
+          "symbol": "SPX",
+          "current_price": "$6,248.50",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "The broader index continues to show strength, driven by persistent AI infrastructure spending and resilient consumer data. New additions in March 2026 reflect a rotation toward industrial tech and specialized hardware."
+        },
+        {
+          "name": "NASDAQ Composite",
+          "symbol": "IXIC",
+          "current_price": "$21,415.20",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "Tech remains the primary driver of market returns. Despite high valuations, earnings growth from semiconductor and software sectors justifies current levels."
+        },
+        {
+          "name": "Vertiv Holdings Co",
+          "symbol": "VRT",
+          "current_price": "$142.15",
+          "sentiment": "very bullish",
+          "confidence": 9,
+          "recommendation": "strong buy",
+          "reasoning": "Recently added to the S&P 500 on March 23, 2026. Dominant player in data center cooling and power management, crucial for the ongoing AI infrastructure build-out. Inclusion in the index will drive significant ETF buying pressure."
+        },
+        {
+          "name": "Lumentum Holdings",
+          "symbol": "LITE",
+          "current_price": "$88.40",
+          "sentiment": "bullish",
+          "confidence": 7,
+          "recommendation": "buy",
+          "reasoning": "Another fresh S&P 500 addition (March 2026). As optical networking becomes critical for next-gen AI clusters, Lumentum's photonics portfolio is seeing accelerating demand. Analyst upgrades followed the index announcement."
+        },
+        {
+          "name": "AppLovin Corp",
+          "symbol": "APP",
+          "current_price": "$115.75",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "Added to the S&P 500 in late 2025, AppLovin has cemented its leadership in mobile ad-tech. The company's AI-driven software platform continues to outperform legacy competitors, delivering consistent earnings beats."
+        },
+        {
+          "name": "Coherent Corp",
+          "symbol": "COHR",
+          "current_price": "$92.30",
+          "sentiment": "bullish",
+          "confidence": 7,
+          "recommendation": "buy",
+          "reasoning": "New S&P 500 component (March 2026). A key supplier of engineered materials and lasers for semiconductor manufacturing and industrial applications. Benefiting from the reshoring of chip production and advanced manufacturing trends."
+        },
+        {
+          "name": "Robinhood Markets",
+          "symbol": "HOOD",
+          "current_price": "$38.50",
+          "sentiment": "neutral-bullish",
+          "confidence": 6,
+          "recommendation": "hold",
+          "reasoning": "Since its S&P 500 inclusion in late 2025, HOOD has matured into a comprehensive financial services platform. While user growth remains strong, regulatory scrutiny creates some near-term headwinds, making it a solid hold with upside potential."
+        }
+      ],
+      "sector_summary": "The market in March 2026 is defined by the 'Infrastructure Phase' of the AI revolution. Investors are rewarding companies that provide the physical and digital backbone for advanced computing—power, cooling, optics, and specialized hardware. The S&P 500's recent rebalancing explicitly favors these industrial-tech hybrids over legacy sectors.",
+      "sector_outlook": "Positive. We anticipate the 'Index Inclusion Effect' to buoy the newly added names (VRT, LITE, COHR) through Q2 2026. Volatility may increase as inflation data is released later this month, but the structural trend remains upward for companies with clear AI-revenue attribution.",
+      "top_pick": "Vertiv Holdings Co (VRT)"
+    },
+    "currencies": {
+      "sector": "currencies",
+      "timestamp": "2026-03-25T14:30:00Z",
+      "assets": [
+        {
+          "name": "US Dollar Index",
+          "symbol": "DXY",
+          "current_price": "100.45",
+          "sentiment": "bullish",
+          "confidence": 9,
+          "recommendation": "buy",
+          "reasoning": "Breaking news indicates the Dollar has successfully reclaimed the psychological 100 level. Technical breakout confirms renewed strength amidst global flight to safety."
+        },
+        {
+          "name": "US Dollar / Mexican Peso",
+          "symbol": "USD/MXN",
+          "current_price": "19.85",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "High volatility forecast for March 2026 confirmed. EM currencies are under pressure as DXY rises; peso weakening as carry trade unwinds."
+        },
+        {
+          "name": "US Dollar / Japanese Yen",
+          "symbol": "USD/JPY",
+          "current_price": "148.20",
+          "sentiment": "bullish",
+          "confidence": 7,
+          "recommendation": "buy",
+          "reasoning": "Yield spread divergence continues to favor the Greenback. Key resistance at 150 is the next target as BoJ remains dovish."
+        },
+        {
+          "name": "British Pound / US Dollar",
+          "symbol": "GBP/USD",
+          "current_price": "1.2150",
+          "sentiment": "bearish",
+          "confidence": 6,
+          "recommendation": "sell",
+          "reasoning": "Cable looks vulnerable as UK economic data softens against the resurgent US Dollar backdrop."
+        },
+        {
+          "name": "Australian Dollar / US Dollar",
+          "symbol": "AUD/USD",
+          "current_price": "0.6380",
+          "sentiment": "bearish",
+          "confidence": 7,
+          "recommendation": "sell",
+          "reasoning": "Commodity currency weakness persists. Global growth concerns are weighing heavily on the Aussie dollar."
+        },
+        {
+          "name": "US Dollar / South African Rand",
+          "symbol": "USD/ZAR",
+          "current_price": "19.10",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "Selected as a high-volatility play. ZAR is extremely sensitive to the stronger DXY environment, breaking technical resistance levels."
+        }
+      ],
+      "sector_summary": "The currency market in March 2026 is defined by the resurgence of the US Dollar, with the DXY index reclaiming the critical 100 level. This move is triggering a broad sell-off in risk currencies (AUD, GBP) and putting severe pressure on Emerging Market pairs (MXN, ZAR). Volatility is elevated across the board as traders reposition for a prolonged period of USD strength.",
+      "sector_outlook": "Expect continued USD dominance in the short term. The 'Reclaim 100' narrative is driving momentum. Look for opportunities to short high-beta currencies against the dollar. The trend is your friend until DXY faces resistance at 102.",
+      "top_pick": "USD/MXN"
+    },
+    "materials": {
+      "sector": "materials",
+      "timestamp": "2026-03-25T08:30:00Z",
+      "assets": [
+        {
+          "name": "Gold",
+          "symbol": "XAU",
+          "current_price": "2645.50",
+          "sentiment": "bullish",
+          "confidence": 8,
+          "recommendation": "buy",
+          "reasoning": "Persistent inflationary pressures and geopolitical uncertainty drive demand for safe-haven assets. Central bank accumulation continues to support price floors above $2500."
+        },
+        {
+          "name": "Crude Oil WTI",
+          "symbol": "CL",
+          "current_price": "78.42",
+          "sentiment": "neutral",
+          "confidence": 6,
+          "recommendation": "hold",
+          "reasoning": "Balanced market with OPEC+ supply discipline countering weaker demand growth from accelerated EV adoption. Geopolitical risk premium remains a key swing factor."
+        },
+        {
+          "name": "Copper",
+          "symbol": "HG",
+          "current_price": "4.85",
+          "sentiment": "bullish",
+          "confidence": 9,
+          "recommendation": "strong_buy",
+          "reasoning": "Critical supply deficit emerging as electrification infrastructure projects accelerate globally. 'The new oil' narrative is firmly established with dwindling inventories."
+        },
+        {
+          "name": "Lithium Carbonate",
+          "symbol": "LIT",
+          "current_price": "28500.00",
+          "sentiment": "bullish",
+          "confidence": 7,
+          "recommendation": "buy",
+          "reasoning": "Stabilizing after volatility; demand from next-gen battery manufacturing facilities coming online in Q2 2026 is expected to outpace current extraction rates."
+        },
+        {
+          "name": "Wheat",
+          "symbol": "ZW",
+          "current_price": "720.25",
+          "sentiment": "bullish",
+          "confidence": 7,
+          "recommendation": "buy",
+          "reasoning": "Climate anomalies in key growing regions (Australia/Russia) threaten yield forecasts for the 2026 harvest, driving food security concerns and speculative buying."
+        }
+      ],
+      "sector_summary": "The materials sector in March 2026 is characterized by a divergence between traditional energy (Oil) and electrification metals (Copper, Lithium). Industrial metals are outperforming energy due to structural deficits driven by the green transition. Agricultural commodities face upward pressure from climate-related supply shocks.",
+      "sector_outlook": "Positive. We anticipate a commodity supercycle extension for critical minerals, while precious metals remain a robust hedge against fiat currency volatility. Energy markets will likely remain range-bound absent major supply disruptions.",
+      "top_pick": "Copper"
+    }
+  }
+}
