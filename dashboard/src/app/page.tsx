@@ -15,6 +15,8 @@ import { SectorOverview } from "@/components/report/SectorOverview"
 import { DetailedAnalysis } from "@/components/report/DetailedAnalysis"
 import { HistoricalAccuracy } from "@/components/report/HistoricalAccuracy"
 import { ChartsSection } from "@/components/report/ChartsSection"
+import { PerformanceChart } from "@/components/report/PerformanceChart"
+import { PortfolioOpsPanel } from "@/components/report/PortfolioOpsPanel"
 import { Disclaimer } from "@/components/report/Disclaimer"
 import { Footer } from "@/components/report/Footer"
 import { LoadingSkeleton } from "@/components/report/LoadingSkeleton"
@@ -86,6 +88,8 @@ function ReportContent() {
             openSectors={openSectors}
           />
           <HistoricalAccuracy accuracy={data.historical_accuracy} />
+          <PerformanceChart />
+          <PortfolioOpsPanel />
           <ChartsSection
             sectors={data.sectors}
             picks={data.risk_adjusted_picks}

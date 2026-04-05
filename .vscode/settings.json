@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^Set-Location 'C:\\\\Users\\\\black\\\\Desktop\\\\maia-skill\\\\patrimonio-autopilot'; python -m pytest -q$/": {
+            "approve": true,
+            "matchCommandLine": true
+        },
+        "/^Set-Location 'C:\\\\Users\\\\black\\\\Desktop\\\\maia-skill\\\\patrimonio-autopilot'; python -m pip install -r requirements\\.txt ; python -m pytest -q$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}

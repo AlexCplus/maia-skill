@@ -1,1 +1,5 @@
 pyyaml
+fastapi
+sqlalchemy
+uvicorn
+pyjwt

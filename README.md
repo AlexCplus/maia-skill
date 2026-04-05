@@ -184,6 +184,59 @@ The Strategy Agent prompt in `references/agent-prompts.md` defines how each risk
 
 The dashboard uses Tailwind CSS. Edit components in `dashboard/src/components/report/` to change the look and feel.
 
+### Optional: connect dashboard to patrimonio-autopilot analytics API
+
+To render the new performance chart from the backend endpoint
+`POST /portfolios/{portfolio_id}/analytics/performance`, configure:
+
+```bash
+NEXT_PUBLIC_AUTOPILOT_API_BASE_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID=1
+NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS=30
+NEXT_PUBLIC_AUTOPILOT_TOKEN=your_jwt_token
+```
+
+Get token quickly:
+
+```bash
+curl -X POST http://127.0.0.1:8000/auth/register -H "Content-Type: application/json" -d "{\"email\":\"you@example.com\",\"password\":\"secret1234\"}"
+curl -X POST http://127.0.0.1:8000/auth/login -H "Content-Type: application/json" -d "{\"email\":\"you@example.com\",\"password\":\"secret1234\"}"
+```
+
+If these variables are not set, the dashboard uses those same defaults.
+
+You can also override both values directly in the UI from the Performance chart
+(`Portfolio ID` and `Days`) and refresh without restarting the dashboard.
+The chart now also loads portfolio options automatically from `GET /portfolios`.
+The dashboard also includes a Portfolio Operations panel to create portfolios,
+submit paper orders, and inspect balance/positions/orders in real time.
+This panel now includes order filters (side/symbol) and full positions/orders tables.
+
+Backend CORS defaults to:
+
+```bash
+AUTOPILOT_CORS_ORIGINS=http://localhost:3420,http://127.0.0.1:3420
+```
+
+You can override this in `patrimonio-autopilot/.env.local`.
+
+Validation quick check:
+
+```bash
+cd patrimonio-autopilot
+python -m pytest -q
+```
+
+Auth endpoints:
+- `POST /auth/register` -> create user and return bearer token
+- `POST /auth/login` -> return bearer token
+
+Protected endpoints require:
+
+```http
+Authorization: Bearer <access_token>
+```
+
 ### Translations
 
 Add or modify UI translations in `dashboard/src/lib/translations.ts`. Report data translation happens automatically via the translation agent (Step 8b in SKILL.md).
@@ -395,6 +448,59 @@ El prompt del Agente de Estrategia en `references/agent-prompts.md` define como 
 ### Estilos del Dashboard
 
 El dashboard usa Tailwind CSS. Edita los componentes en `dashboard/src/components/report/` para cambiar la apariencia.
+
+### Opcional: conectar dashboard con API de analitica de patrimonio-autopilot
+
+Para renderizar el nuevo grafico de rendimiento desde el endpoint
+`POST /portfolios/{portfolio_id}/analytics/performance`, configura:
+
+```bash
+NEXT_PUBLIC_AUTOPILOT_API_BASE_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID=1
+NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS=30
+NEXT_PUBLIC_AUTOPILOT_TOKEN=tu_jwt_token
+```
+
+Obtener token rapido:
+
+```bash
+curl -X POST http://127.0.0.1:8000/auth/register -H "Content-Type: application/json" -d "{\"email\":\"tu@email.com\",\"password\":\"secret1234\"}"
+curl -X POST http://127.0.0.1:8000/auth/login -H "Content-Type: application/json" -d "{\"email\":\"tu@email.com\",\"password\":\"secret1234\"}"
+```
+
+Si no defines estas variables, el dashboard usa esos mismos valores por defecto.
+
+Tambien puedes sobrescribir ambos valores directamente en la UI del grafico de rendimiento
+(`Portfolio ID` y `Dias`) y refrescar sin reiniciar el dashboard.
+El grafico tambien carga portfolios automaticamente desde `GET /portfolios`.
+El dashboard tambien incluye un panel de Operacion de Portafolio para crear portfolios,
+enviar ordenes paper y revisar balance/posiciones/ordenes en tiempo real.
+Este panel ahora incluye filtros de ordenes (lado/simbolo) y tablas completas de posiciones/ordenes.
+
+El CORS del backend usa por defecto:
+
+```bash
+AUTOPILOT_CORS_ORIGINS=http://localhost:3420,http://127.0.0.1:3420
+```
+
+Puedes sobrescribirlo en `patrimonio-autopilot/.env.local`.
+
+Validacion rapida:
+
+```bash
+cd patrimonio-autopilot
+python -m pytest -q
+```
+
+Endpoints de auth:
+- `POST /auth/register` -> crea usuario y devuelve token bearer
+- `POST /auth/login` -> devuelve token bearer
+
+Los endpoints protegidos requieren:
+
+```http
+Authorization: Bearer <access_token>
+```
 
 ### Traducciones
 
