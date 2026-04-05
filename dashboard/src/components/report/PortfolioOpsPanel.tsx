@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { useLanguage } from "@/hooks/use-language"
 import { usePortfolios } from "@/hooks/use-portfolios"
 import { useTradingPanel } from "@/hooks/use-trading-panel"
+import { getAuthHeader } from "@/lib/auth"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -22,7 +23,7 @@ const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 export function PortfolioOpsPanel() {
   const { lang } = useLanguage()
   const { data: portfolios, loading: portfoliosLoading, refetch: refetchPortfolios } = usePortfolios()
-  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number>(1)
+  const [selectedPortfolioId, setSelectedPortfolioId] = useState<number>(0)
   const [createName, setCreateName] = useState("")
   const [createCurrency, setCreateCurrency] = useState("USD")
   const [orderSymbol, setOrderSymbol] = useState("AAPL")
@@ -41,6 +42,7 @@ export function PortfolioOpsPanel() {
 
   const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
   const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
+  const authHeader = getAuthHeader(token)
 
   const labels = useMemo(
     () => ({
@@ -92,7 +94,7 @@ export function PortfolioOpsPanel() {
 
   const createPortfolio = async () => {
     setMessage(null)
-    if (!token) {
+    if (!authHeader) {
       setStatus(labels.missingToken, true)
       return
     }
@@ -110,7 +112,7 @@ export function PortfolioOpsPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...authHeader,
       },
       body: JSON.stringify({ name, base_currency: currency }),
     })
@@ -128,7 +130,7 @@ export function PortfolioOpsPanel() {
 
   const placeOrder = async () => {
     setMessage(null)
-    if (!token) {
+    if (!authHeader) {
       setStatus(labels.missingToken, true)
       return
     }
@@ -156,7 +158,7 @@ export function PortfolioOpsPanel() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...authHeader,
       },
       body: JSON.stringify({
         portfolio_id: selectedPortfolioId,

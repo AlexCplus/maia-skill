@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import type { PaperBalance, PositionSummary, OrderSummary } from "@/types/trading"
+import { getAuthHeader } from "@/lib/auth"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 
@@ -25,9 +26,10 @@ export function useTradingPanel(params: UseTradingPanelParams) {
     const controller = new AbortController()
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
     const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
+    const authHeader = getAuthHeader(token)
     const portfolioId = params.portfolioId
 
-    if (!token) {
+    if (!authHeader) {
       setPositions([])
       setOrders([])
       setBalance(null)
@@ -51,15 +53,15 @@ export function useTradingPanel(params: UseTradingPanelParams) {
     Promise.all([
       fetch(`${apiBase}/portfolios/${portfolioId}/positions`, {
         signal: controller.signal,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: authHeader,
       }),
       fetch(`${apiBase}/orders?portfolio_id=${portfolioId}`, {
         signal: controller.signal,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: authHeader,
       }),
       fetch(`${apiBase}/orders/balance/${portfolioId}`, {
         signal: controller.signal,
-        headers: { Authorization: `Bearer ${token}` },
+        headers: authHeader,
       }),
     ])
       .then(async ([positionsRes, ordersRes, balanceRes]) => {

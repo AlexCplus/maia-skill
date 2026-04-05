@@ -45,6 +45,17 @@ From project root:
 uvicorn src.api.main:app --reload --port 8000
 ```
 
+If you had an old `autopilot.db` created before auth/multi-user support, run:
+
+```bash
+python src/ops/migrate_auth_schema.py
+```
+
+Tip: the script now uses `DB_URL` and prints the resolved file path, so ensure it matches the same DB file your API is using.
+
+Also, startup now performs an automatic SQLite legacy migration for `users` and `portfolios.owner_id`.
+If you still see `no such column: portfolios.owner_id`, fully stop and restart the API process so startup migration runs.
+
 Main endpoints:
 - `GET /health`
 - `GET /portfolios`

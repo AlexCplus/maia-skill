@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react"
 import type { PortfolioSummary } from "@/types/portfolio"
+import { getAuthHeader } from "@/lib/auth"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 
@@ -19,8 +20,9 @@ export function usePortfolios() {
     const controller = new AbortController()
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
     const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
+    const authHeader = getAuthHeader(token)
 
-    if (!token) {
+    if (!authHeader) {
       setData([])
       setLoading(false)
       setError("Missing NEXT_PUBLIC_AUTOPILOT_TOKEN")
@@ -32,7 +34,7 @@ export function usePortfolios() {
 
     fetch(`${apiBase}/portfolios`, {
       signal: controller.signal,
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      headers: authHeader,
     })
       .then((res) => {
         if (!res.ok) {

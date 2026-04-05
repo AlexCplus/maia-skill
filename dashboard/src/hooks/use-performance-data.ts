@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react"
 import type { PerformanceSeriesResponse } from "@/types/performance"
+import { getAuthHeader } from "@/lib/auth"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
-const DEFAULT_PORTFOLIO_ID = 1
+const DEFAULT_PORTFOLIO_ID = 0
 const DEFAULT_DAYS = 30
 
 interface UsePerformanceDataParams {
@@ -26,16 +27,16 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
     const controller = new AbortController()
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
     const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
+    const authHeader = getAuthHeader(token)
 
-    if (!token) {
+    if (!authHeader) {
       setData(null)
       setLoading(false)
       setError("Missing NEXT_PUBLIC_AUTOPILOT_TOKEN")
       return () => controller.abort()
     }
 
-    const envPortfolioIdRaw = process.env.NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID
-    const envPortfolioId = Number(envPortfolioIdRaw ?? DEFAULT_PORTFOLIO_ID)
+    const envPortfolioId = DEFAULT_PORTFOLIO_ID
     const envDaysRaw = process.env.NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS
     const envDays = Number(envDaysRaw ?? DEFAULT_DAYS)
 
@@ -53,6 +54,13 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
           ? envDays
           : DEFAULT_DAYS
 
+    if (!Number.isFinite(effectivePortfolioId) || effectivePortfolioId <= 0) {
+      setData(null)
+      setLoading(false)
+      setError(null)
+      return () => controller.abort()
+    }
+
     setLoading(true)
     setError(null)
 
@@ -60,7 +68,7 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        ...authHeader,
       },
       body: JSON.stringify({ days: effectiveDays }),
       signal: controller.signal,

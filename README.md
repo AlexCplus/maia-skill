@@ -136,6 +136,14 @@ In any Claude Code conversation:
 
 You'll be asked your risk profile (conservative, moderate, or aggressive), then the 5 agents go to work. The report opens at `http://localhost:3420`.
 
+### Local dev quick start (Git Bash on Windows)
+
+From repo root, you can start backend + dashboard in one command:
+
+```bash
+bash ./start-dev.sh
+```
+
 ### Language Toggle
 
 When you first open the dashboard, you'll be asked to pick English or Spanish. All report content — summaries, reasoning, news headlines, insights, warnings — translates to your chosen language. Numbers, prices, tickers, and percentages stay as-is.
@@ -195,6 +203,8 @@ NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID=1
 NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS=30
 NEXT_PUBLIC_AUTOPILOT_TOKEN=your_jwt_token
 ```
+
+`NEXT_PUBLIC_AUTOPILOT_TOKEN` accepts either the raw JWT or `Bearer <token>`.
 
 Get token quickly:
 

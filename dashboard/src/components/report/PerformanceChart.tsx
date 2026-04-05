@@ -17,7 +17,7 @@ import { usePortfolios } from "@/hooks/use-portfolios"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
-const DEFAULT_PORTFOLIO_ID = Number(process.env.NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID ?? 1)
+const DEFAULT_PORTFOLIO_ID = 0
 const DEFAULT_DAYS = Number(process.env.NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS ?? 30)
 
 function formatDay(value: string): string {
@@ -70,7 +70,7 @@ export function PerformanceChart() {
   const applyQuery = () => {
     const portfolioId = Number(portfolioInput)
     const days = Number(daysInput)
-    const safePortfolioId = Number.isFinite(portfolioId) && portfolioId > 0 ? portfolioId : 1
+    const safePortfolioId = Number.isFinite(portfolioId) && portfolioId > 0 ? portfolioId : 0
     const safeDays = Number.isFinite(days) && days > 0 ? days : 30
     setQuery({ portfolioId: safePortfolioId, days: safeDays })
   }
