@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import type { PaperBalance, PositionSummary, OrderSummary } from "@/types/trading"
 import { getAuthHeader } from "@/lib/auth"
+import { useAuth } from "@/hooks/use-auth"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 
@@ -17,6 +18,7 @@ export function useTradingPanel(params: UseTradingPanelParams) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshToken, setRefreshToken] = useState(0)
+  const { token, ready } = useAuth()
 
   const refetch = useCallback(() => {
     setRefreshToken((prev) => prev + 1)
@@ -25,16 +27,20 @@ export function useTradingPanel(params: UseTradingPanelParams) {
   useEffect(() => {
     const controller = new AbortController()
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
-    const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
     const authHeader = getAuthHeader(token)
     const portfolioId = params.portfolioId
+
+    if (!ready) {
+      setLoading(true)
+      return () => controller.abort()
+    }
 
     if (!authHeader) {
       setPositions([])
       setOrders([])
       setBalance(null)
       setLoading(false)
-      setError("Missing NEXT_PUBLIC_AUTOPILOT_TOKEN")
+      setError(null)
       return () => controller.abort()
     }
 
@@ -87,7 +93,7 @@ export function useTradingPanel(params: UseTradingPanelParams) {
       .finally(() => setLoading(false))
 
     return () => controller.abort()
-  }, [params.portfolioId, refreshToken])
+  }, [params.portfolioId, ready, refreshToken, token])
 
   return { positions, orders, balance, loading, error, refetch }
 }

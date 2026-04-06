@@ -14,6 +14,7 @@ from src.api.schemas import (
     PnLRequest,
     PortfolioPnLRead,
     PortfolioCreate,
+    PortfolioUpdate,
     PortfolioRead,
     PositionCreate,
     RebalanceRead,
@@ -29,6 +30,7 @@ from src.data.database import get_db
 from src.data.models import User
 from src.data.repositories import (
     create_portfolio,
+    delete_portfolio,
     create_position,
     create_transaction,
     get_portfolio,
@@ -36,9 +38,11 @@ from src.data.repositories import (
     list_portfolios,
     list_positions,
     list_transactions,
+    update_portfolio,
 )
 from src.risk.limits import load_risk_limits
 from src.strategy.analytics import (
+    compute_performance_stats,
     compute_position_cost_value,
     compute_position_market_value,
     compute_realized_pnl_for_day,
@@ -82,6 +86,31 @@ def get_portfolio_by_id(
     if portfolio is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found")
     return portfolio
+
+
+@router.put("/{portfolio_id}", response_model=PortfolioRead)
+def put_portfolio(
+    portfolio_id: int,
+    payload: PortfolioUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> PortfolioRead:
+    portfolio = get_portfolio(db, portfolio_id, owner_id=current_user.id)
+    if portfolio is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found")
+    return update_portfolio(db, portfolio=portfolio, name=payload.name, base_currency=payload.base_currency.upper())
+
+
+@router.delete("/{portfolio_id}", status_code=status.HTTP_204_NO_CONTENT)
+def remove_portfolio(
+    portfolio_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    portfolio = get_portfolio(db, portfolio_id, owner_id=current_user.id)
+    if portfolio is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found")
+    delete_portfolio(db, portfolio=portfolio)
 
 
 @router.get("/{portfolio_id}/positions", response_model=list[PositionRead])
@@ -226,6 +255,14 @@ def check_portfolio_risk(
         violations.append("max_open_positions_exceeded")
     if payload.proposed_order_notional > limits.max_order_notional:
         violations.append("max_order_notional_exceeded")
+    if payload.symbol:
+        symbol_limit = limits.max_order_notional_by_symbol.get(payload.symbol.strip().upper())
+        if symbol_limit is not None and payload.proposed_order_notional > symbol_limit:
+            violations.append("max_order_notional_by_symbol_exceeded")
+    if payload.asset_class:
+        class_limit = limits.max_order_notional_by_asset_class.get(payload.asset_class.strip().lower())
+        if class_limit is not None and payload.proposed_order_notional > class_limit:
+            violations.append("max_order_notional_by_asset_class_exceeded")
     if daily_loss > limits.max_daily_loss:
         violations.append("max_daily_loss_exceeded")
 
@@ -235,6 +272,8 @@ def check_portfolio_risk(
         max_open_positions=limits.max_open_positions,
         max_daily_loss=limits.max_daily_loss,
         max_order_notional=limits.max_order_notional,
+        max_order_notional_by_asset_class=limits.max_order_notional_by_asset_class,
+        max_order_notional_by_symbol=limits.max_order_notional_by_symbol,
         open_positions=open_positions,
         daily_loss=round(daily_loss, 4),
         proposed_order_notional=round(payload.proposed_order_notional, 4),
@@ -325,6 +364,7 @@ def get_performance_series(
 
     orders = list_orders_for_portfolio(db, portfolio_id=portfolio_id, owner_id=current_user.id)
     series_raw = compute_realized_pnl_timeseries(orders=orders, days=payload.days)
+    stats = compute_performance_stats(series_raw)
     return PerformanceRead(
         portfolio_id=portfolio_id,
         days=payload.days,
@@ -337,5 +377,9 @@ def get_performance_series(
             )
             for row in series_raw
         ],
+        win_rate_pct=float(stats["win_rate_pct"]),
+        profit_factor=float(stats["profit_factor"]),
+        max_drawdown=float(stats["max_drawdown"]),
+        max_drawdown_pct=float(stats["max_drawdown_pct"]),
     )
 

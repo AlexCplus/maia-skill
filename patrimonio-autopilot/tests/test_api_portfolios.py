@@ -439,6 +439,57 @@ def test_order_blocks_when_daily_loss_exceeded() -> None:
     assert resp.status_code == 400
 
 
+def test_order_blocks_when_symbol_limit_exceeded() -> None:
+    init_db()
+    client = TestClient(app)
+    headers = _auth_headers(client, email="symbollimit@example.com")
+
+    created = client.post("/portfolios", json={"name": "SymbolLimit", "base_currency": "USD"}, headers=headers).json()
+    portfolio_id = created["id"]
+
+    resp = client.post(
+        "/orders",
+        json={
+            "portfolio_id": portfolio_id,
+            "symbol": "BTC",
+            "side": "buy",
+            "quantity": 1,
+            "price": 11000,
+            "fee": 0,
+            "asset_class": "crypto",
+            "daily_realized_pnl": 0,
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 400
+    assert "max_order_notional_by_symbol_exceeded" in str(resp.json())
+
+
+def test_risk_check_includes_asset_and_symbol_limits() -> None:
+    init_db()
+    client = TestClient(app)
+    headers = _auth_headers(client, email="riskchecklimits@example.com")
+
+    created = client.post("/portfolios", json={"name": "RiskCheckLimits", "base_currency": "USD"}, headers=headers).json()
+    portfolio_id = created["id"]
+
+    resp = client.post(
+        f"/portfolios/{portfolio_id}/risk/check",
+        json={
+            "proposed_order_notional": 25000,
+            "daily_realized_pnl": 0,
+            "symbol": "BTC",
+            "asset_class": "crypto",
+        },
+        headers=headers,
+    )
+    assert resp.status_code == 200
+    payload = resp.json()
+    assert payload["passed"] is False
+    assert "max_order_notional_by_symbol_exceeded" in payload["violations"]
+    assert "max_order_notional_by_asset_class_exceeded" in payload["violations"]
+
+
 def test_multiuser_portfolio_isolation() -> None:
     init_db()
     client = TestClient(app)

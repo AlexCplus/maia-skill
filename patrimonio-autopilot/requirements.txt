@@ -3,3 +3,6 @@ fastapi
 sqlalchemy
 uvicorn
 pyjwt
+yfinance
+requests
+httpx

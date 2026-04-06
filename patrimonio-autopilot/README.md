@@ -1,6 +1,14 @@
 # patrimonio-autopilot
 
-D1 foundation scaffold for a Python project.
+Sistema de paper trading automatizado que complementa el análisis MAIA.
+
+## Características
+
+- **Autopilot 24/7**: Loop automático que analiza y ejecuta trades
+- **Integración MAIA**: Lee recomendaciones del `report_v2.json` generado por los agentes
+- **Precios reales**: Soporte para Yahoo Finance y CoinGecko (con fallback a simulación)
+- **Gestión de riesgo**: Límites configurables por símbolo/clase de activo
+- **Multi-usuario**: Auth JWT con portfolios separados por usuario
 
 ## Setup
 
@@ -17,104 +25,123 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-## Run smoke checks
-
-From project root:
-
-```bash
-python -m compileall src
-python src/ops/run_healthcheck.py
-```
-
-Optional alert plumbing test:
-
-```bash
-python src/ops/run_healthcheck.py --test-alert telegram
-python src/ops/run_healthcheck.py --test-alert email
-```
-
-Notes:
-- Healthcheck verifies required config files and environment variables.
-- Alert tests fail explicitly when required environment values are missing.
-
-## Run API (MVP patrimonio)
-
-From project root:
+## Run API
 
 ```bash
 uvicorn src.api.main:app --reload --port 8000
 ```
 
-If you had an old `autopilot.db` created before auth/multi-user support, run:
+## MAIA Integration
+
+El autopilot puede usar las recomendaciones del sistema MAIA automáticamente:
+
+1. **Report Bridge**: Lee `dashboard/public/data/report_v2.json`
+2. **Picks to Watchlist**: Convierte recomendaciones BUY en watchlist automática
+3. **Position Sizing**: Usa el `position_size` del report para calcular cantidades
+
+### Configuración Autopilot
+
+```json
+POST /autopilot/start
+{
+  "portfolio_id": 1,
+  "interval_seconds": 60,
+  "auto_execute": true,
+  "watchlist": [],  // Opcional: símbolos extra
+  "use_report": true,  // Usar recomendaciones MAIA
+  "use_real_prices": true,  // Yahoo Finance / CoinGecko
+  "min_confidence": 7.0  // Solo picks con confianza >= 7
+}
+```
+
+### Endpoints del Report
+
+- `GET /autopilot/report/info` - Metadata del report actual
+- `GET /autopilot/report/picks?min_confidence=7&recommendation=buy` - Lista de picks
+- `GET /autopilot/prices/check` - Proveedores de precio disponibles
+- `GET /autopilot/prices/{symbol}` - Precio actual de un símbolo
+- `GET /autopilot/analysis/status` - Estado del skill MAIA
+
+### Actualizar el Análisis MAIA
+
+Para regenerar el report con nuevas recomendaciones:
+
+```bash
+# Usando GitHub Copilot CLI
+copilot chat --skill maia-skill
+
+# O invoca el skill desde VS Code Copilot
+```
+
+El report se guarda en `dashboard/public/data/report_v2.json` y es leído automáticamente por el autopilot en el siguiente tick.
+
+## API Endpoints
+
+### Auth
+- `POST /auth/register` - Crear usuario
+- `POST /auth/login` - Login (devuelve JWT)
+
+### Portfolios
+- `GET /portfolios`
+- `POST /portfolios`
+- `GET /portfolios/{id}`
+- `PUT /portfolios/{id}`
+- `DELETE /portfolios/{id}`
+
+### Positions & Transactions
+- `GET /portfolios/{id}/positions`
+- `POST /portfolios/{id}/positions`
+- `GET /portfolios/{id}/transactions`
+- `POST /portfolios/{id}/transactions`
+
+### Analytics
+- `POST /portfolios/{id}/analytics/pnl`
+- `POST /portfolios/{id}/analytics/daily-summary`
+- `POST /portfolios/{id}/analytics/performance`
+
+### Risk & Strategy
+- `POST /portfolios/{id}/risk/check`
+- `POST /portfolios/{id}/strategy/rebalance`
+
+### Orders (Paper Trading)
+- `POST /orders`
+- `GET /orders`
+- `GET /orders/balance/{portfolio_id}`
+
+### AI Signals
+- `POST /signals/generate`
+- `GET /signals/{portfolio_id}`
+
+### Autopilot
+- `POST /autopilot/start`
+- `POST /autopilot/stop/{portfolio_id}`
+- `GET /autopilot/status/{portfolio_id}`
+- `GET /autopilot/status`
+- `GET /autopilot/report/info`
+- `GET /autopilot/report/picks`
+- `GET /autopilot/prices/check`
+- `GET /autopilot/prices/{symbol}`
+- `GET /autopilot/analysis/status`
+
+## Configuración de Riesgo
+
+Edita `config/risk.limits.yaml`:
+
+```yaml
+max_daily_loss: 500
+max_open_positions: 10
+max_order_notional: 5000
+max_order_notional_by_asset_class:
+  crypto: 10000
+  stock: 5000
+max_order_notional_by_symbol:
+  BTC: 20000
+```
+
+## Migración de DB Legacy
+
+Si tenías una DB antes del soporte multi-usuario:
 
 ```bash
 python src/ops/migrate_auth_schema.py
-```
-
-Tip: the script now uses `DB_URL` and prints the resolved file path, so ensure it matches the same DB file your API is using.
-
-Also, startup now performs an automatic SQLite legacy migration for `users` and `portfolios.owner_id`.
-If you still see `no such column: portfolios.owner_id`, fully stop and restart the API process so startup migration runs.
-
-Main endpoints:
-- `GET /health`
-- `GET /portfolios`
-- `POST /portfolios`
-- `GET /portfolios/{portfolio_id}`
-- `GET /portfolios/{portfolio_id}/positions`
-- `POST /portfolios/{portfolio_id}/positions`
-- `GET /portfolios/{portfolio_id}/transactions`
-- `POST /portfolios/{portfolio_id}/transactions`
-- `POST /portfolios/{portfolio_id}/analytics/pnl`
-- `POST /portfolios/{portfolio_id}/analytics/daily-summary`
-- `POST /portfolios/{portfolio_id}/analytics/performance`
-- `POST /portfolios/{portfolio_id}/risk/check`
-- `POST /portfolios/{portfolio_id}/strategy/rebalance`
-- `POST /orders` (paper trading, con validación de riesgo)
-- `GET /orders` (historial de órdenes, `?portfolio_id=` opcional)
-- `GET /orders/balance/{portfolio_id}` (balance paper)
-
-Example payloads:
-
-```json
-{
-  "current_prices": {
-    "AAPL": 212.35,
-    "BTC": 68000
-  }
-}
-```
-
-```json
-{
-  "portfolio_id": 1,
-  "symbol": "MSFT",
-  "side": "buy",
-  "quantity": 2,
-  "price": 300,
-  "fee": 1,
-  "asset_class": "stock",
-  "daily_realized_pnl": 0
-}
-```
-
-```json
-{
-  "proposed_order_notional": 12000,
-  "daily_realized_pnl": -350
-}
-```
-
-```json
-{
-  "current_prices": {
-    "AAPL": 212.35,
-    "BTC": 68000
-  },
-  "target_allocation": {
-    "stock": 0.6,
-    "crypto": 0.4
-  },
-  "min_trade_notional": 25
-}
 ```

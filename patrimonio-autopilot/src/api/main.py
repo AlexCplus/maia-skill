@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.routes import auth_router, orders_router, portfolios_router
+from src.api.routes import auth_router, orders_router, portfolios_router, signals_router, autopilot_router
+from src.autopilot.runner import stop_all_jobs
 from src.data import init_db
 
 
@@ -25,6 +26,11 @@ def on_startup() -> None:
     init_db()
 
 
+@app.on_event("shutdown")
+def on_shutdown() -> None:
+    stop_all_jobs()
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -38,4 +44,6 @@ def root() -> dict[str, str]:
 app.include_router(portfolios_router)
 app.include_router(orders_router)
 app.include_router(auth_router)
+app.include_router(signals_router)
+app.include_router(autopilot_router)
 

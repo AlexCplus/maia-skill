@@ -5,7 +5,9 @@ import { motion } from "framer-motion"
 import { useLanguage } from "@/hooks/use-language"
 import { usePortfolios } from "@/hooks/use-portfolios"
 import { useTradingPanel } from "@/hooks/use-trading-panel"
+import { useAuth } from "@/hooks/use-auth"
 import { getAuthHeader } from "@/lib/auth"
+import type { RiskCheckSummary } from "@/types/trading"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -22,10 +24,14 @@ const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 
 export function PortfolioOpsPanel() {
   const { lang } = useLanguage()
+  const { token } = useAuth()
   const { data: portfolios, loading: portfoliosLoading, refetch: refetchPortfolios } = usePortfolios()
   const [selectedPortfolioId, setSelectedPortfolioId] = useState<number>(0)
   const [createName, setCreateName] = useState("")
   const [createCurrency, setCreateCurrency] = useState("USD")
+  const [editName, setEditName] = useState("")
+  const [editCurrency, setEditCurrency] = useState("USD")
+  const [busyAction, setBusyAction] = useState<"create" | "update" | "delete" | "order" | "risk" | null>(null)
   const [orderSymbol, setOrderSymbol] = useState("AAPL")
   const [orderSide, setOrderSide] = useState<"buy" | "sell">("buy")
   const [orderQty, setOrderQty] = useState("1")
@@ -35,13 +41,13 @@ export function PortfolioOpsPanel() {
   const [orderFilterSymbol, setOrderFilterSymbol] = useState("")
   const [message, setMessage] = useState<string | null>(null)
   const [messageError, setMessageError] = useState(false)
+  const [riskPreview, setRiskPreview] = useState<RiskCheckSummary | null>(null)
 
   const { positions, orders, balance, loading, error, refetch } = useTradingPanel({
     portfolioId: selectedPortfolioId,
   })
 
   const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
-  const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
   const authHeader = getAuthHeader(token)
 
   const labels = useMemo(
@@ -52,7 +58,10 @@ export function PortfolioOpsPanel() {
           ? "Gestión rápida: crear portfolio, lanzar órdenes paper y revisar estado"
           : "Quick operations: create portfolio, place paper orders, and review state",
       createPortfolio: lang === "es" ? "Crear Portfolio" : "Create Portfolio",
+      updatePortfolio: lang === "es" ? "Guardar cambios" : "Save changes",
+      deletePortfolio: lang === "es" ? "Eliminar portfolio" : "Delete portfolio",
       placeOrder: lang === "es" ? "Enviar Orden" : "Place Order",
+      validateRisk: lang === "es" ? "Validar riesgo" : "Validate risk",
       refresh: lang === "es" ? "Refrescar" : "Refresh",
       symbol: lang === "es" ? "Símbolo" : "Symbol",
       quantity: lang === "es" ? "Cantidad" : "Quantity",
@@ -70,10 +79,29 @@ export function PortfolioOpsPanel() {
       noPortfolios: lang === "es" ? "Crea un portfolio para empezar." : "Create a portfolio to start.",
       portfolioName: lang === "es" ? "Nombre portfolio" : "Portfolio name",
       currency: lang === "es" ? "Moneda" : "Currency",
+      confirmDelete:
+        lang === "es"
+          ? "¿Eliminar este portfolio y todos sus datos? Esta acción no se puede deshacer."
+          : "Delete this portfolio and all its data? This cannot be undone.",
       missingToken:
         lang === "es"
-          ? "Falta NEXT_PUBLIC_AUTOPILOT_TOKEN en dashboard/.env.local"
-          : "Missing NEXT_PUBLIC_AUTOPILOT_TOKEN in dashboard/.env.local",
+          ? "Inicia sesión para operar."
+          : "Sign in to trade.",
+      riskCheck: lang === "es" ? "Pre-check riesgo" : "Risk pre-check",
+      riskViolations: lang === "es" ? "Violaciones de riesgo" : "Risk violations",
+      riskOk: lang === "es" ? "Riesgo OK para la orden." : "Risk check passed.",
+      riskBlocked: lang === "es" ? "Orden bloqueada por riesgo." : "Order blocked by risk.",
+      violation_max_order_notional_exceeded:
+        lang === "es" ? "Supera el límite global por orden." : "Exceeds global max order notional.",
+      violation_max_daily_loss_exceeded:
+        lang === "es" ? "Supera la pérdida diaria máxima." : "Exceeds max daily loss.",
+      violation_max_open_positions_exceeded:
+        lang === "es" ? "Supera el máximo de posiciones abiertas." : "Exceeds max open positions.",
+      violation_max_order_notional_by_symbol_exceeded:
+        lang === "es" ? "Supera el límite por símbolo." : "Exceeds symbol-specific notional limit.",
+      violation_max_order_notional_by_asset_class_exceeded:
+        lang === "es" ? "Supera el límite por clase de activo." : "Exceeds asset-class notional limit.",
+      unknownViolation: lang === "es" ? "Violación de riesgo desconocida." : "Unknown risk violation.",
     }),
     [lang]
   )
@@ -92,20 +120,35 @@ export function PortfolioOpsPanel() {
     }
   }, [portfolios, selectedPortfolioExists])
 
+  useEffect(() => {
+    const selected = portfolios.find((p) => p.id === selectedPortfolioId)
+    if (!selected) {
+      setEditName("")
+      setEditCurrency("USD")
+      return
+    }
+    setEditName(selected.name)
+    setEditCurrency(selected.base_currency)
+  }, [portfolios, selectedPortfolioId])
+
   const createPortfolio = async () => {
+    setBusyAction("create")
     setMessage(null)
     if (!authHeader) {
       setStatus(labels.missingToken, true)
+      setBusyAction(null)
       return
     }
     const name = createName.trim()
     const currency = createCurrency.trim().toUpperCase()
     if (!name) {
       setStatus(lang === "es" ? "Nombre requerido." : "Name required.", true)
+      setBusyAction(null)
       return
     }
     if (currency.length < 3 || currency.length > 8) {
       setStatus(lang === "es" ? "Moneda inválida." : "Invalid currency.", true)
+      setBusyAction(null)
       return
     }
     const res = await fetch(`${apiBase}/portfolios`, {
@@ -118,6 +161,7 @@ export function PortfolioOpsPanel() {
     })
     if (!res.ok) {
       setStatus(`${lang === "es" ? "Error creando portfolio" : "Error creating portfolio"}: ${res.status}`, true)
+      setBusyAction(null)
       return
     }
     const created = (await res.json()) as { id: number; name: string }
@@ -126,17 +170,98 @@ export function PortfolioOpsPanel() {
     setStatus(`${lang === "es" ? "Portfolio creado" : "Portfolio created"}: ${created.name} (#${created.id})`)
     refetchPortfolios()
     refetch()
+    setBusyAction(null)
   }
 
-  const placeOrder = async () => {
+  const updateSelectedPortfolio = async () => {
+    setBusyAction("update")
     setMessage(null)
     if (!authHeader) {
       setStatus(labels.missingToken, true)
+      setBusyAction(null)
       return
     }
     if (!selectedPortfolioExists) {
       setStatus(lang === "es" ? "Selecciona un portfolio válido." : "Select a valid portfolio.", true)
+      setBusyAction(null)
       return
+    }
+    const name = editName.trim()
+    const currency = editCurrency.trim().toUpperCase()
+    if (!name) {
+      setStatus(lang === "es" ? "Nombre requerido." : "Name required.", true)
+      setBusyAction(null)
+      return
+    }
+    if (currency.length < 3 || currency.length > 8) {
+      setStatus(lang === "es" ? "Moneda inválida." : "Invalid currency.", true)
+      setBusyAction(null)
+      return
+    }
+    const res = await fetch(`${apiBase}/portfolios/${selectedPortfolioId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader,
+      },
+      body: JSON.stringify({ name, base_currency: currency }),
+    })
+    if (!res.ok) {
+      setStatus(`${lang === "es" ? "Error actualizando portfolio" : "Error updating portfolio"}: ${res.status}`, true)
+      setBusyAction(null)
+      return
+    }
+    setStatus(lang === "es" ? "Portfolio actualizado." : "Portfolio updated.")
+    refetchPortfolios()
+    refetch()
+    setBusyAction(null)
+  }
+
+  const deleteSelectedPortfolio = async () => {
+    setBusyAction("delete")
+    setMessage(null)
+    if (!authHeader) {
+      setStatus(labels.missingToken, true)
+      setBusyAction(null)
+      return
+    }
+    if (!selectedPortfolioExists) {
+      setStatus(lang === "es" ? "Selecciona un portfolio válido." : "Select a valid portfolio.", true)
+      setBusyAction(null)
+      return
+    }
+    if (!window.confirm(labels.confirmDelete)) {
+      setBusyAction(null)
+      return
+    }
+    const deletingId = selectedPortfolioId
+    const res = await fetch(`${apiBase}/portfolios/${deletingId}`, {
+      method: "DELETE",
+      headers: {
+        ...authHeader,
+      },
+    })
+    if (!res.ok) {
+      setStatus(`${lang === "es" ? "Error eliminando portfolio" : "Error deleting portfolio"}: ${res.status}`, true)
+      setBusyAction(null)
+      return
+    }
+    setStatus(lang === "es" ? "Portfolio eliminado." : "Portfolio deleted.")
+    const remaining = portfolios.filter((p) => p.id !== deletingId)
+    setSelectedPortfolioId(remaining[0]?.id ?? 0)
+    refetchPortfolios()
+    refetch()
+    setBusyAction(null)
+  }
+
+  const runRiskCheck = async (): Promise<RiskCheckSummary | null> => {
+    if (!authHeader) {
+      setStatus(labels.missingToken, true)
+      return null
+    }
+    if (!selectedPortfolioExists) {
+      setStatus(lang === "es" ? "Selecciona un portfolio válido." : "Select a valid portfolio.", true)
+      return null
     }
     const symbol = orderSymbol.trim().toUpperCase()
     const assetClass = orderAssetClass.trim().toLowerCase()
@@ -144,16 +269,73 @@ export function PortfolioOpsPanel() {
     const price = Number(orderPrice)
     if (!symbol) {
       setStatus(lang === "es" ? "Símbolo requerido." : "Symbol required.", true)
-      return
+      return null
     }
     if (!assetClass) {
       setStatus(lang === "es" ? "Clase de activo requerida." : "Asset class required.", true)
-      return
+      return null
     }
     if (!Number.isFinite(quantity) || quantity <= 0 || !Number.isFinite(price) || price <= 0) {
       setStatus(lang === "es" ? "Cantidad o precio inválidos." : "Invalid quantity or price.", true)
+      return null
+    }
+    const notional = quantity * price
+    const riskRes = await fetch(`${apiBase}/portfolios/${selectedPortfolioId}/risk/check`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader,
+      },
+      body: JSON.stringify({
+        proposed_order_notional: notional,
+        daily_realized_pnl: 0,
+        symbol,
+        asset_class: assetClass,
+      }),
+    })
+    if (!riskRes.ok) {
+      setStatus(`${lang === "es" ? "Error pre-check riesgo" : "Risk pre-check error"}: ${riskRes.status}`, true)
+      return null
+    }
+    const riskPayload = (await riskRes.json()) as RiskCheckSummary
+    setRiskPreview(riskPayload)
+    if (!riskPayload.passed) {
+      setStatus(
+        `${labels.riskBlocked} ${labels.riskViolations}: ${
+          riskPayload.violations.map(explainViolation).join(" | ") || "-"
+        }`,
+        true
+      )
+      return riskPayload
+    }
+    setStatus(labels.riskOk, false)
+    return riskPayload
+  }
+
+  const validateRiskOnly = async () => {
+    setBusyAction("risk")
+    setMessage(null)
+    await runRiskCheck()
+    setBusyAction(null)
+  }
+
+  const placeOrder = async () => {
+    setBusyAction("order")
+    setMessage(null)
+    const symbol = orderSymbol.trim().toUpperCase()
+    const assetClass = orderAssetClass.trim().toLowerCase()
+    const quantity = Number(orderQty)
+    const price = Number(orderPrice)
+    const riskPayload = await runRiskCheck()
+    if (!riskPayload) {
+      setBusyAction(null)
       return
     }
+    if (!riskPayload.passed) {
+      setBusyAction(null)
+      return
+    }
+
     const res = await fetch(`${apiBase}/orders`, {
       method: "POST",
       headers: {
@@ -174,10 +356,12 @@ export function PortfolioOpsPanel() {
     if (!res.ok) {
       const body = await res.text()
       setStatus(`${lang === "es" ? "Orden rechazada" : "Order rejected"}: ${body}`, true)
+      setBusyAction(null)
       return
     }
-    setStatus(lang === "es" ? "Orden ejecutada." : "Order filled.")
+    setStatus(`${lang === "es" ? "Orden ejecutada." : "Order filled."} ${labels.riskOk}`)
     refetch()
+    setBusyAction(null)
   }
 
   const filteredOrders = useMemo(() => {
@@ -188,6 +372,23 @@ export function PortfolioOpsPanel() {
       return sideOk && symbolOk
     })
   }, [orderFilterSide, orderFilterSymbol, orders])
+
+  const explainViolation = (code: string) => {
+    switch (code) {
+      case "max_order_notional_exceeded":
+        return labels.violation_max_order_notional_exceeded
+      case "max_daily_loss_exceeded":
+        return labels.violation_max_daily_loss_exceeded
+      case "max_open_positions_exceeded":
+        return labels.violation_max_open_positions_exceeded
+      case "max_order_notional_by_symbol_exceeded":
+        return labels.violation_max_order_notional_by_symbol_exceeded
+      case "max_order_notional_by_asset_class_exceeded":
+        return labels.violation_max_order_notional_by_asset_class_exceeded
+      default:
+        return `${labels.unknownViolation} (${code})`
+    }
+  }
 
   return (
     <motion.section
@@ -202,12 +403,23 @@ export function PortfolioOpsPanel() {
       <div className="mt-3 grid gap-2 sm:grid-cols-[2fr_1fr_auto]">
         <Input value={createName} onChange={(e) => setCreateName(e.target.value)} placeholder={labels.portfolioName} />
         <Input value={createCurrency} onChange={(e) => setCreateCurrency(e.target.value)} placeholder={labels.currency} />
-        <Button variant="outline" onClick={createPortfolio}>
+        <Button variant="outline" onClick={createPortfolio} disabled={busyAction !== null}>
           {labels.createPortfolio}
         </Button>
       </div>
 
-      <div className="mt-3 grid gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto]">
+      <div className="mt-3 grid gap-2 sm:grid-cols-[2fr_1fr_auto_auto]">
+        <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder={labels.portfolioName} />
+        <Input value={editCurrency} onChange={(e) => setEditCurrency(e.target.value)} placeholder={labels.currency} />
+        <Button variant="outline" onClick={updateSelectedPortfolio} disabled={busyAction !== null || !selectedPortfolioExists}>
+          {labels.updatePortfolio}
+        </Button>
+        <Button variant="outline" onClick={deleteSelectedPortfolio} disabled={busyAction !== null || !selectedPortfolioExists}>
+          {labels.deletePortfolio}
+        </Button>
+      </div>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr_auto_auto]">
         <select
           className="h-8 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm outline-none"
           disabled={portfoliosLoading}
@@ -236,13 +448,16 @@ export function PortfolioOpsPanel() {
         <Input value={orderQty} onChange={(e) => setOrderQty(e.target.value)} placeholder={labels.quantity} />
         <Input value={orderPrice} onChange={(e) => setOrderPrice(e.target.value)} placeholder={labels.price} />
         <Input value={orderAssetClass} onChange={(e) => setOrderAssetClass(e.target.value)} placeholder={labels.assetClass} />
-        <Button variant="outline" onClick={placeOrder}>
+        <Button variant="outline" onClick={validateRiskOnly} disabled={busyAction !== null}>
+          {labels.validateRisk}
+        </Button>
+        <Button variant="outline" onClick={placeOrder} disabled={busyAction !== null}>
           {labels.placeOrder}
         </Button>
       </div>
 
       <div className="mt-3 flex gap-2">
-        <Button variant="outline" onClick={refetch}>
+        <Button variant="outline" onClick={refetch} disabled={busyAction !== null}>
           {labels.refresh}
         </Button>
       </div>
@@ -252,6 +467,26 @@ export function PortfolioOpsPanel() {
           <AlertTitle>{messageError || !!error ? "Error" : "Info"}</AlertTitle>
           <AlertDescription>{message ?? error}</AlertDescription>
         </Alert>
+      )}
+
+      {riskPreview && (
+        <div
+          className={`mt-3 rounded-lg border p-3 text-sm ${
+            riskPreview.passed
+              ? "border-[#D4E8D4] bg-[#F6FFF6]"
+              : "border-[#F3C6C6] bg-[#FFF6F6]"
+          }`}
+        >
+          <p className="text-xs text-[#8B8B85]">{labels.riskCheck}</p>
+          <p>
+            {riskPreview.passed
+              ? labels.riskOk
+              : `${labels.riskViolations}: ${riskPreview.violations.map(explainViolation).join(" | ")}`}
+          </p>
+          <p className="text-xs text-[#8B8B85]">
+            max_order_notional={riskPreview.max_order_notional} | open_positions={riskPreview.open_positions}
+          </p>
+        </div>
       )}
 
       <div className="mt-4 grid gap-3 md:grid-cols-3">

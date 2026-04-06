@@ -23,6 +23,7 @@ class Portfolio(Base):
     positions: Mapped[list["Position"]] = relationship("Position", back_populates="portfolio", cascade="all, delete-orphan")
     transactions: Mapped[list["Transaction"]] = relationship("Transaction", back_populates="portfolio", cascade="all, delete-orphan")
     orders: Mapped[list["Order"]] = relationship("Order", back_populates="portfolio", cascade="all, delete-orphan")
+    ai_signals: Mapped[list["AISignal"]] = relationship("AISignal", back_populates="portfolio", cascade="all, delete-orphan")
     owner: Mapped["User"] = relationship("User", back_populates="portfolios")
 
 
@@ -83,4 +84,23 @@ class Order(Base):
     executed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     portfolio: Mapped["Portfolio"] = relationship("Portfolio", back_populates="orders")
+
+
+class AISignal(Base):
+    __tablename__ = "ai_signals"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    portfolio_id: Mapped[int] = mapped_column(Integer, ForeignKey("portfolios.id"), nullable=False, index=True)
+    symbol: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    asset_class: Mapped[str] = mapped_column(String(32), nullable=False, default="stock")
+    side: Mapped[str] = mapped_column(String(8), nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    reason: Mapped[str] = mapped_column(String(512), nullable=False)
+    suggested_price: Mapped[float] = mapped_column(Float, nullable=False)
+    suggested_quantity: Mapped[float] = mapped_column(Float, nullable=False)
+    status: Mapped[str] = mapped_column(String(16), nullable=False, default="suggested")
+    executed_order_id: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
+
+    portfolio: Mapped["Portfolio"] = relationship("Portfolio", back_populates="ai_signals")
 

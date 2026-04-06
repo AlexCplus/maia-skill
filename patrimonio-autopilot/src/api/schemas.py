@@ -9,6 +9,11 @@ class PortfolioCreate(BaseModel):
     base_currency: str = Field(default="USD", min_length=3, max_length=8)
 
 
+class PortfolioUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=128)
+    base_currency: str = Field(default="USD", min_length=3, max_length=8)
+
+
 class PortfolioRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -88,6 +93,8 @@ class PortfolioPnLRead(BaseModel):
 class RiskCheckRequest(BaseModel):
     proposed_order_notional: float = Field(default=0, ge=0)
     daily_realized_pnl: float = 0
+    symbol: str | None = None
+    asset_class: str | None = None
 
 
 class RiskCheckRead(BaseModel):
@@ -96,6 +103,8 @@ class RiskCheckRead(BaseModel):
     max_open_positions: int
     max_daily_loss: float
     max_order_notional: float
+    max_order_notional_by_asset_class: dict[str, float]
+    max_order_notional_by_symbol: dict[str, float]
     open_positions: int
     daily_loss: float
     proposed_order_notional: float
@@ -186,6 +195,10 @@ class PerformanceRead(BaseModel):
     portfolio_id: int
     days: int
     series: list[PerformancePointRead]
+    win_rate_pct: float
+    profit_factor: float
+    max_drawdown: float
+    max_drawdown_pct: float
 
 
 class UserRegisterRequest(BaseModel):
@@ -201,4 +214,63 @@ class UserLoginRequest(BaseModel):
 class AuthTokenRead(BaseModel):
     access_token: str
     token_type: str = "bearer"
+
+
+class AISignalGenerateRequest(BaseModel):
+    portfolio_id: int = Field(gt=0)
+    symbol: str = Field(min_length=1, max_length=32)
+    asset_class: str = Field(default="stock", min_length=1, max_length=32)
+    prices: list[float] = Field(default_factory=list, min_length=2)
+    auto_execute: bool = False
+
+
+class AISignalRead(BaseModel):
+    id: int
+    portfolio_id: int
+    symbol: str
+    asset_class: str
+    side: Literal["buy", "sell", "hold"]
+    confidence: float
+    reason: str
+    suggested_price: float
+    suggested_quantity: float
+    status: Literal["suggested", "executed"]
+    executed_order_id: str | None = None
+
+
+class AISignalGenerateResponse(BaseModel):
+    signal: AISignalRead
+    executed_order: OrderRead | None = None
+
+
+class AutopilotWatchItem(BaseModel):
+    symbol: str = Field(min_length=1, max_length=32)
+    asset_class: str = Field(default="stock", min_length=1, max_length=32)
+
+
+class AutopilotStartRequest(BaseModel):
+    portfolio_id: int = Field(gt=0)
+    interval_seconds: int = Field(default=60, ge=10, le=3600)
+    auto_execute: bool = True
+    watchlist: list[AutopilotWatchItem] = Field(default_factory=list)
+    use_report: bool = Field(default=True, description="Use MAIA report recommendations")
+    use_real_prices: bool = Field(default=True, description="Use real price feeds (with simulation fallback)")
+    min_confidence: float = Field(default=7.0, ge=1.0, le=10.0, description="Minimum confidence from report (1-10)")
+
+
+class AutopilotStatusRead(BaseModel):
+    portfolio_id: int
+    running: bool
+    interval_seconds: int
+    auto_execute: bool
+    watchlist: list[AutopilotWatchItem]
+    use_report: bool = True
+    use_real_prices: bool = True
+    min_confidence: float = 7.0
+    report_picks_count: int = 0
+    report_last_read: str | None = None
+    started_at: str
+    last_tick_at: str | None = None
+    ticks_total: int
+    last_error: str | None = None
 

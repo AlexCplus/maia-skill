@@ -28,3 +28,17 @@ export interface PaperBalance {
   equity_estimate: number
 }
 
+export interface RiskCheckSummary {
+  portfolio_id: number
+  passed: boolean
+  max_open_positions: number
+  max_daily_loss: number
+  max_order_notional: number
+  max_order_notional_by_asset_class: Record<string, number>
+  max_order_notional_by_symbol: Record<string, number>
+  open_positions: number
+  daily_loss: number
+  proposed_order_notional: number
+  violations: string[]
+}
+

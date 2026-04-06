@@ -25,13 +25,21 @@ def execute_paper_order(db: Session, payload: OrderCreate, owner_id: int) -> Ord
     notional = payload.quantity * payload.price
     open_positions = len(list_positions(db, portfolio_id=payload.portfolio_id))
     daily_loss = max(0.0, -float(payload.daily_realized_pnl))
+    symbol = payload.symbol.strip().upper()
+    asset_class = payload.asset_class.strip().lower()
     current_symbol_position = get_position_by_symbol(
-        db, portfolio_id=payload.portfolio_id, symbol=payload.symbol
+        db, portfolio_id=payload.portfolio_id, symbol=symbol
     )
 
     violations: list[str] = []
     if notional > limits.max_order_notional:
         violations.append("max_order_notional_exceeded")
+    symbol_limit = limits.max_order_notional_by_symbol.get(symbol)
+    if symbol_limit is not None and notional > symbol_limit:
+        violations.append("max_order_notional_by_symbol_exceeded")
+    asset_class_limit = limits.max_order_notional_by_asset_class.get(asset_class)
+    if asset_class_limit is not None and notional > asset_class_limit:
+        violations.append("max_order_notional_by_asset_class_exceeded")
     if daily_loss > limits.max_daily_loss:
         violations.append("max_daily_loss_exceeded")
     if (

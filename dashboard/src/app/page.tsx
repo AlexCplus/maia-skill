@@ -2,8 +2,10 @@
 
 import { useState, useCallback } from "react"
 import { useReportData } from "@/hooks/use-report-data"
+import { AuthProvider, useAuth } from "@/hooks/use-auth"
 import { LanguageProvider, useLanguage } from "@/hooks/use-language"
 import { LanguagePicker } from "@/components/report/LanguagePicker"
+import { AuthGate } from "@/components/report/AuthGate"
 import { ReportHeader } from "@/components/report/ReportHeader"
 import { ExecutiveSummary } from "@/components/report/ExecutiveSummary"
 import { MacroEnvironment } from "@/components/report/MacroEnvironment"
@@ -17,12 +19,15 @@ import { HistoricalAccuracy } from "@/components/report/HistoricalAccuracy"
 import { ChartsSection } from "@/components/report/ChartsSection"
 import { PerformanceChart } from "@/components/report/PerformanceChart"
 import { PortfolioOpsPanel } from "@/components/report/PortfolioOpsPanel"
+import { AISignalPanel } from "@/components/report/AISignalPanel"
+import { AutopilotPanel } from "@/components/report/AutopilotPanel"
 import { Disclaimer } from "@/components/report/Disclaimer"
 import { Footer } from "@/components/report/Footer"
 import { LoadingSkeleton } from "@/components/report/LoadingSkeleton"
 
 function ReportContent() {
   const { lang } = useLanguage()
+  const { isAuthenticated, ready, email, logout } = useAuth()
   const { data, loading, error } = useReportData(lang)
   const [openSectors, setOpenSectors] = useState<string[]>([])
 
@@ -58,6 +63,8 @@ function ReportContent() {
     )
   }
 
+  if (!ready) return <LoadingSkeleton />
+
   return (
     <div className="relative min-h-screen bg-white">
       <div
@@ -66,6 +73,18 @@ function ReportContent() {
       />
       <LanguagePicker />
       <main id="main-content" className="mx-auto max-w-5xl px-4 pb-12 sm:px-6 lg:px-10">
+        {!isAuthenticated ? (
+          <div className="mt-6">
+            <AuthGate />
+          </div>
+        ) : (
+          <div className="mt-4 flex items-center justify-end gap-2 text-xs text-[#8B8B85]">
+            <span>{email}</span>
+            <button className="underline" onClick={logout}>
+              {lang === "es" ? "Cerrar sesión" : "Sign out"}
+            </button>
+          </div>
+        )}
         <ReportHeader data={data} />
         <div className="mt-6 space-y-8">
           <ExecutiveSummary summary={data.executive_summary} />
@@ -90,6 +109,8 @@ function ReportContent() {
           <HistoricalAccuracy accuracy={data.historical_accuracy} />
           <PerformanceChart />
           <PortfolioOpsPanel />
+          <AISignalPanel />
+          <AutopilotPanel />
           <ChartsSection
             sectors={data.sectors}
             picks={data.risk_adjusted_picks}
@@ -106,7 +127,9 @@ function ReportContent() {
 export default function ReportPage() {
   return (
     <LanguageProvider>
-      <ReportContent />
+      <AuthProvider>
+        <ReportContent />
+      </AuthProvider>
     </LanguageProvider>
   )
 }

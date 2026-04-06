@@ -1,15 +1,15 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import type { PortfolioSummary } from "@/types/portfolio"
-import { getAuthHeader } from "@/lib/auth"
 import { useAuth } from "@/hooks/use-auth"
+import { getAuthHeader } from "@/lib/auth"
+import type { AISignal } from "@/types/signals"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 
-export function usePortfolios() {
-  const [data, setData] = useState<PortfolioSummary[]>([])
-  const [loading, setLoading] = useState(true)
+export function useAISignals(portfolioId: number) {
+  const [signals, setSignals] = useState<AISignal[]>([])
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [refreshToken, setRefreshToken] = useState(0)
   const { token, ready } = useAuth()
@@ -23,13 +23,8 @@ export function usePortfolios() {
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
     const authHeader = getAuthHeader(token)
 
-    if (!ready) {
-      setLoading(true)
-      return () => controller.abort()
-    }
-
-    if (!authHeader) {
-      setData([])
+    if (!ready || !authHeader || !Number.isFinite(portfolioId) || portfolioId <= 0) {
+      setSignals([])
       setLoading(false)
       setError(null)
       return () => controller.abort()
@@ -37,28 +32,24 @@ export function usePortfolios() {
 
     setLoading(true)
     setError(null)
-
-    fetch(`${apiBase}/portfolios`, {
+    fetch(`${apiBase}/signals/${portfolioId}?limit=50`, {
       signal: controller.signal,
       headers: authHeader,
     })
       .then((res) => {
-        if (!res.ok) {
-          throw new Error(`Failed to load portfolios: ${res.status}`)
-        }
-        return res.json() as Promise<PortfolioSummary[]>
+        if (!res.ok) throw new Error(`Failed signals: ${res.status}`)
+        return res.json() as Promise<AISignal[]>
       })
-      .then(setData)
+      .then(setSignals)
       .catch((err: unknown) => {
         if (err instanceof Error && err.name === "AbortError") return
-        const message = err instanceof Error ? err.message : "Unknown portfolios error"
-        setError(message)
+        setError(err instanceof Error ? err.message : "Unknown signals error")
       })
       .finally(() => setLoading(false))
 
     return () => controller.abort()
-  }, [ready, refreshToken, token])
+  }, [portfolioId, ready, refreshToken, token])
 
-  return { data, loading, error, refetch }
+  return { signals, loading, error, refetch }
 }
 

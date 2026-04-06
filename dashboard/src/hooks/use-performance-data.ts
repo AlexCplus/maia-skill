@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react"
 import type { PerformanceSeriesResponse } from "@/types/performance"
 import { getAuthHeader } from "@/lib/auth"
+import { useAuth } from "@/hooks/use-auth"
 
 const DEFAULT_API_BASE = "http://127.0.0.1:8000"
 const DEFAULT_PORTFOLIO_ID = 0
@@ -18,6 +19,7 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [refreshToken, setRefreshToken] = useState(0)
+  const { token, ready } = useAuth()
 
   const refetch = useCallback(() => {
     setRefreshToken((prev) => prev + 1)
@@ -26,13 +28,17 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
   useEffect(() => {
     const controller = new AbortController()
     const apiBase = process.env.NEXT_PUBLIC_AUTOPILOT_API_BASE_URL ?? DEFAULT_API_BASE
-    const token = process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN
     const authHeader = getAuthHeader(token)
+
+    if (!ready) {
+      setLoading(true)
+      return () => controller.abort()
+    }
 
     if (!authHeader) {
       setData(null)
       setLoading(false)
-      setError("Missing NEXT_PUBLIC_AUTOPILOT_TOKEN")
+      setError(null)
       return () => controller.abort()
     }
 
@@ -88,7 +94,7 @@ export function usePerformanceData(params: UsePerformanceDataParams) {
       .finally(() => setLoading(false))
 
     return () => controller.abort()
-  }, [params.days, params.portfolioId, refreshToken])
+  }, [params.days, params.portfolioId, ready, refreshToken, token])
 
   return { data, loading, error, refetch }
 }

@@ -14,6 +14,7 @@ import {
 import { useLanguage } from "@/hooks/use-language"
 import { usePerformanceData } from "@/hooks/use-performance-data"
 import { usePortfolios } from "@/hooks/use-portfolios"
+import { useAuth } from "@/hooks/use-auth"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -27,6 +28,7 @@ function formatDay(value: string): string {
 
 export function PerformanceChart() {
   const { lang } = useLanguage()
+  const { isAuthenticated } = useAuth()
   const { data: portfolios, loading: portfoliosLoading } = usePortfolios()
   const [portfolioInput, setPortfolioInput] = useState(String(DEFAULT_PORTFOLIO_ID))
   const [daysInput, setDaysInput] = useState(String(DEFAULT_DAYS))
@@ -50,12 +52,15 @@ export function PerformanceChart() {
   const noPortfoliosLabel = lang === "es" ? "Sin portfolios" : "No portfolios"
   const missingTokenLabel =
     lang === "es"
-      ? "Falta NEXT_PUBLIC_AUTOPILOT_TOKEN en dashboard/.env.local"
-      : "Missing NEXT_PUBLIC_AUTOPILOT_TOKEN in dashboard/.env.local"
+      ? "Inicia sesión para cargar el rendimiento."
+      : "Sign in to load performance."
   const manualHint =
     lang === "es"
       ? "Si no aparece en la lista, puedes usar Portfolio ID manual."
       : "If not listed, you can use manual Portfolio ID."
+  const winRateLabel = lang === "es" ? "Win rate" : "Win rate"
+  const profitFactorLabel = lang === "es" ? "Profit factor" : "Profit factor"
+  const maxDdLabel = lang === "es" ? "Max drawdown" : "Max drawdown"
 
   useEffect(() => {
     if (portfolios.length === 0) return
@@ -135,8 +140,23 @@ export function PerformanceChart() {
         </div>
       </div>
       <p className="mt-1 text-[11px] text-[#8B8B85]">
-        {process.env.NEXT_PUBLIC_AUTOPILOT_TOKEN ? manualHint : missingTokenLabel}
+        {isAuthenticated ? manualHint : missingTokenLabel}
       </p>
+
+      <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <div className="rounded-lg border border-[#E6E6E4] bg-white p-3 text-sm">
+          <p className="text-xs text-[#8B8B85]">{winRateLabel}</p>
+          <p>{data ? `${data.win_rate_pct.toFixed(2)}%` : "-"}</p>
+        </div>
+        <div className="rounded-lg border border-[#E6E6E4] bg-white p-3 text-sm">
+          <p className="text-xs text-[#8B8B85]">{profitFactorLabel}</p>
+          <p>{data ? data.profit_factor.toFixed(2) : "-"}</p>
+        </div>
+        <div className="rounded-lg border border-[#E6E6E4] bg-white p-3 text-sm">
+          <p className="text-xs text-[#8B8B85]">{maxDdLabel}</p>
+          <p>{data ? `${data.max_drawdown.toFixed(2)} (${data.max_drawdown_pct.toFixed(2)}%)` : "-"}</p>
+        </div>
+      </div>
 
       <div className="mt-4 h-[260px]">
         {loading ? (

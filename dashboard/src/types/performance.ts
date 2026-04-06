@@ -9,5 +9,9 @@ export interface PerformanceSeriesResponse {
   portfolio_id: number
   days: number
   series: PerformancePoint[]
+  win_rate_pct: number
+  profit_factor: number
+  max_drawdown: number
+  max_drawdown_pct: number
 }
 

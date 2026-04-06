@@ -201,10 +201,10 @@ To render the new performance chart from the backend endpoint
 NEXT_PUBLIC_AUTOPILOT_API_BASE_URL=http://127.0.0.1:8000
 NEXT_PUBLIC_AUTOPILOT_PORTFOLIO_ID=1
 NEXT_PUBLIC_AUTOPILOT_PERFORMANCE_DAYS=30
-NEXT_PUBLIC_AUTOPILOT_TOKEN=your_jwt_token
 ```
 
-`NEXT_PUBLIC_AUTOPILOT_TOKEN` accepts either the raw JWT or `Bearer <token>`.
+Dashboard now includes a login/register UI and stores token in `localStorage`.
+You can still define `NEXT_PUBLIC_AUTOPILOT_TOKEN` as optional fallback.
 
 Get token quickly:
 
@@ -218,9 +218,12 @@ If these variables are not set, the dashboard uses those same defaults.
 You can also override both values directly in the UI from the Performance chart
 (`Portfolio ID` and `Days`) and refresh without restarting the dashboard.
 The chart now also loads portfolio options automatically from `GET /portfolios`.
-The dashboard also includes a Portfolio Operations panel to create portfolios,
+The dashboard also includes a Portfolio Operations panel to create/update/delete portfolios,
 submit paper orders, and inspect balance/positions/orders in real time.
 This panel now includes order filters (side/symbol) and full positions/orders tables.
+It also runs a risk pre-check before placing an order and shows violations inline.
+It now includes an AI Signal panel to generate simulated trading signals and optionally auto-execute paper orders.
+It also includes an Autopilot panel to run a periodic 24/7 paper loop with configurable watchlist and interval.
 
 Backend CORS defaults to:
 

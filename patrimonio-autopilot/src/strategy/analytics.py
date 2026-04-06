@@ -88,3 +88,53 @@ def compute_realized_pnl_timeseries(orders: list[Order], days: int, end_day: dat
         )
     return points
 
+
+def compute_performance_stats(series: list[dict[str, float | str]]) -> dict[str, float]:
+    if not series:
+        return {
+            "win_rate_pct": 0.0,
+            "profit_factor": 0.0,
+            "max_drawdown": 0.0,
+            "max_drawdown_pct": 0.0,
+        }
+
+    wins = 0
+    losses = 0
+    gross_profit = 0.0
+    gross_loss = 0.0
+    peak = 0.0
+    max_drawdown = 0.0
+    max_drawdown_pct = 0.0
+
+    for point in series:
+        realized = float(point["realized_pnl_day"])
+        cumulative = float(point["cumulative_realized_pnl"])
+
+        if realized > 0:
+            wins += 1
+            gross_profit += realized
+        elif realized < 0:
+            losses += 1
+            gross_loss += abs(realized)
+
+        if cumulative > peak:
+            peak = cumulative
+        drawdown = peak - cumulative
+        if drawdown > max_drawdown:
+            max_drawdown = drawdown
+        if peak > 0:
+            drawdown_pct = (drawdown / peak) * 100
+            if drawdown_pct > max_drawdown_pct:
+                max_drawdown_pct = drawdown_pct
+
+    decided_days = wins + losses
+    win_rate_pct = (wins / decided_days * 100) if decided_days > 0 else 0.0
+    profit_factor = (gross_profit / gross_loss) if gross_loss > 0 else (gross_profit if gross_profit > 0 else 0.0)
+
+    return {
+        "win_rate_pct": round(win_rate_pct, 4),
+        "profit_factor": round(profit_factor, 4),
+        "max_drawdown": round(max_drawdown, 4),
+        "max_drawdown_pct": round(max_drawdown_pct, 4),
+    }
+

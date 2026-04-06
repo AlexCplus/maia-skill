@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.data.models import Order, Portfolio, Position, Transaction
+from src.data.models import AISignal, Order, Portfolio, Position, Transaction
 
 
 def list_portfolios(db: Session, owner_id: int) -> list[Portfolio]:
@@ -13,6 +13,19 @@ def create_portfolio(db: Session, owner_id: int, name: str, base_currency: str) 
     db.commit()
     db.refresh(portfolio)
     return portfolio
+
+
+def update_portfolio(db: Session, portfolio: Portfolio, name: str, base_currency: str) -> Portfolio:
+    portfolio.name = name
+    portfolio.base_currency = base_currency
+    db.commit()
+    db.refresh(portfolio)
+    return portfolio
+
+
+def delete_portfolio(db: Session, portfolio: Portfolio) -> None:
+    db.delete(portfolio)
+    db.commit()
 
 
 def get_portfolio(db: Session, portfolio_id: int, owner_id: int) -> Portfolio | None:
@@ -178,4 +191,54 @@ def list_orders_for_portfolio(db: Session, portfolio_id: int, owner_id: int) -> 
         .order_by(Order.executed_at.asc())
         .all()
     )
+
+
+def create_ai_signal(
+    db: Session,
+    portfolio_id: int,
+    symbol: str,
+    asset_class: str,
+    side: str,
+    confidence: float,
+    reason: str,
+    suggested_price: float,
+    suggested_quantity: float,
+) -> AISignal:
+    signal = AISignal(
+        portfolio_id=portfolio_id,
+        symbol=symbol.upper(),
+        asset_class=asset_class.lower(),
+        side=side.lower(),
+        confidence=confidence,
+        reason=reason,
+        suggested_price=suggested_price,
+        suggested_quantity=suggested_quantity,
+        status="suggested",
+    )
+    db.add(signal)
+    db.commit()
+    db.refresh(signal)
+    return signal
+
+
+def list_ai_signals(db: Session, portfolio_id: int, owner_id: int, limit: int = 50) -> list[AISignal]:
+    return (
+        db.query(AISignal)
+        .join(Portfolio, Portfolio.id == AISignal.portfolio_id)
+        .filter(AISignal.portfolio_id == portfolio_id, Portfolio.owner_id == owner_id)
+        .order_by(AISignal.id.desc())
+        .limit(limit)
+        .all()
+    )
+
+
+def mark_ai_signal_executed(db: Session, signal_id: int, order_id: str) -> AISignal | None:
+    signal = db.query(AISignal).filter(AISignal.id == signal_id).first()
+    if signal is None:
+        return None
+    signal.status = "executed"
+    signal.executed_order_id = order_id
+    db.commit()
+    db.refresh(signal)
+    return signal
 
